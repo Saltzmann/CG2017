@@ -1,0 +1,73 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/gcc.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/gcc.exe 
+Build flags: 
+Id flags: -c 
+
+The output was:
+1
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/gcc.exe 
+Build flags: 
+Id flags: -Aa 
+
+The output was:
+1
+
+
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/gcc.exe 
+Build flags: 
+Id flags: -D__CLASSIC_C__ 
+
+The output was:
+1
+
+
+Checking whether the C compiler is IAR using "" did not match "IAR .+ Compiler":
+gcc.exe: fatal error: no input files
+compilation terminated.
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/g++.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+1
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: C:/Qt/Tools/mingw530_32/bin/g++.exe 
+Build flags: 
+Id flags: -c 
+
+The output was:
+1
+
+
+Checking whether the CXX compiler is IAR using "" did not match "IAR .+ Compiler":
+g++.exe: fatal error: no input files
+compilation terminated.
+Determining if the C compiler works failed with the following output:
+Change Dir: C:/Users/Tobias/Documents/GitHub/CG2017/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/NOLOGO" "cmTC_04493\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\nmake.exe" -f CMakeFiles\cmTC_04493.dir\build.make /nologo -L                  CMakeFiles\cmTC_04493.dir\build
+Building C object CMakeFiles/cmTC_04493.dir/testCCompiler.c.obj
+	C:\Qt\Tools\mingw530_32\bin\gcc.exe    -o CMakeFiles\cmTC_04493.dir\testCCompiler.c.obj   -c C:\Users\Tobias\Documents\GitHub\CG2017\CMakeFiles\CMakeTmp\testCCompiler.c
+NMAKE : fatal error U1077: "C:\Qt\Tools\mingw530_32\bin\gcc.exe": R³ckgabe-Code "0x1"
+Stop.
+NMAKE : fatal error U1077: ""C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\BIN\amd64\nmake.exe"": R³ckgabe-Code "0x2"
+Stop.
+
+
