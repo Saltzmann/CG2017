@@ -24,7 +24,7 @@ void init()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -83,12 +83,18 @@ void draw()
 
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //rot
         glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f); //weiß
         glVertex3f( 1.0f,  1.0f,  0.0f); //oben rechts
+        glColor4f(0.0f, 0.0f, 1.0f, 1.0f); //blau
         glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
 
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //rot
         glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
+        glColor4f(0.0f, 0.0f, 1.0f, 1.0f); //blau
         glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
+        glColor4f(0.0f, 0.0f, 0.0f, 0.0f); //schwarz
         glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
     glEnd();
 
