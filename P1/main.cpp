@@ -22,7 +22,7 @@ unsigned int counter = 0;
 void init()
 {
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE); //Option 1
+    glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
     glShadeModel(GL_FLAT);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -72,16 +72,14 @@ void draw()
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -7.0f);
 
-    glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
+    //glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
 
     //glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
-    glRotatef(180, 0, 1, 0); // now rotate
+    glRotatef(45 + counter*1, 0, 0, 1); // now rotate
     //glTranslatef(0.0f, 0.0f, -7.0f); // translate back
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-
-    //glCullFace(GL_FRONT); //Option 2
 
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
@@ -90,7 +88,7 @@ void draw()
         glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
     glEnd();
 
-    glPopMatrix(); // the old matrix is back
+    //glPopMatrix(); // the old matrix is back
 
     // Execute all issued GL commands
     glFlush(); // replace with glutSwapBuffers() for double buffered mode
