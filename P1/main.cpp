@@ -22,14 +22,14 @@ unsigned int counter = 0;
 void init()
 {
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
     glShadeModel(GL_FLAT);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
-    //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
 }
 
 
@@ -74,14 +74,14 @@ void draw()
 
     glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
 
-    glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
-    glRotatef(45, 0, 0, 1); // now rotate
-    glTranslatef(0.0f, 0.0f, -7.0f); // translate back
-
-    // now you have rotated the scene by 45 degrees arround z-axis, at point (0,0,-7)
+    //glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
+    glRotatef(180, 0, 1, 0); // now rotate
+    //glTranslatef(0.0f, 0.0f, -7.0f); // translate back
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+
+    //glCullFace(GL_FRONT); //Option 2
 
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
