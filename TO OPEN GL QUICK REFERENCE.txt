@@ -1,7 +1,36 @@
 TO OPEN GL  QUICK REFERENCE
 
 GLUT:
+//INIT FUNCS
+  glutPostRedisplay(); //aktuelles Fenster nochmal zeichnen
+  glutTimerFunc(/*mindestzeit bis Aktivierung*/, func, parameter); //Timer Funktion
+  glutInit(&argc, argv);  //initialisiert GLUT Library & nimmt args und nimmt alles was glut versteht heraus
+  glutInitDisplayMode(/* verODERte Displaymodes*/); //setzt initialen Displaymode
+  glutInitWindowPosition(x,y); glutInitWindowSize(w, h); //initiale Position und Größe setzen
+  glutCreateWindow(/*Caption*/); //Top-Level-Fenster mit Titel "Caption" erstellen
 
+  //Callback Registrierung für Main Loop
+  glutReshapeFunc(reshape); //reshape cb triggered when -> reshape, first display after create
+  glutDisplayFunc(draw); //Setzt Funktion die bei Redisplay aufgerufen wird
+  glutMainLoop(); //startet main event processing loop
 
 
 OPENGL:
+  glEnable(/* GL capability*/); //enable server-side GL capabilities
+  //GL_DEPTH_TEST -> macht Tiefenvergleiche, wenn disabled wird der Depthbuffer nicht upgedated
+  glDepthFunc(/*vergleichsfunktion_code*/); //setzt Tiefenvergleichsfunktion
+  DEPRECATED glShadeModel(GL_FLAT); // GL_FLAT = alle Pixel der Vertex = eine Farbe / Smooth = Farbe kann unterschiedlich sein
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT /*target*/, /*mode*/ GL_NICEST); //wenn Spielraum für Interpretation, dann target mit mode ausführen
+  glClearDepth(1.0f); //Wert mit dem der Depthbuffer ge-cleared wird
+  glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Wert mit dem der Color-Buffer gecleared wird
+  glViewport(0, 0, width, height); //setzt viewport (xcoord, ycoord, width, height)
+  DEPRECATED glMatrixMode(GL_PROJECTION); //welche matrix in den nächsten Schritten bearbeitet wird
+  glLoadIdentity(); //aktuelle Matrix = identity matrix = einheitsmatrix
+  gluPerspective(fovy, aspect, znear, zfar); //
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); ///ausführen der Clear Ops zu den vorher gesetzten Werten
+  glTranslatef(0.0f, 0.0f, -7.0f); //aktuelle Matrix mit param multiplizieren
+  glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //setzt aktuelle Farbe mit 4xfloat rgba
+  glBegin(GL_TRIANGLES); //Anfang Vertex Deklaration mit Formangabe
+  glVertex3f( 1.0f, -1.0f,  0.0f); //definiere Vertex (3DPunkt)
+  glEnd(); //Ende Vertex Deklaration
+  glFlush(); // replace with glutSwapBuffers() for double buffered mode -> alle cmds absetzen
