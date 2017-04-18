@@ -25,7 +25,7 @@ void init()
     glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
     glShadeModel(GL_SMOOTH);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
     //glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß
@@ -57,7 +57,10 @@ void reshape(GLsizei width, GLsizei height)
    // Set projection matrix to a perspective projection
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   gluPerspective(45.0f, aspect, 0.1, 100.0);
+   //gluPerspective(45.0f, aspect, 0.1, 100.0);
+   glOrtho(-3.0f, 3.0f, -3.0f, 3.0f, -5, 100);
+   //Der 2D Körper hat keinen Fluchtpunkt, daher kann man den Unterschied zwischen
+   //orthogonaler und perpektivischer Darstellung nicht sehen.
 }
 
 
@@ -72,11 +75,7 @@ void draw()
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -7.0f);
 
-    //glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
-
-    //glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
     glRotatef(45 + counter*0, 0, 0, 1); // now rotate
-    //glTranslatef(0.0f, 0.0f, -7.0f); // translate back
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
