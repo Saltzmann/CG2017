@@ -72,15 +72,25 @@ void draw()
     glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -7.0f);
 
+    glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
+
+    glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
+    glRotatef(45, 0, 0, 1); // now rotate
+    glTranslatef(0.0f, 0.0f, -7.0f); // translate back
+
+    // now you have rotated the scene by 45 degrees arround z-axis, at point (0,0,-7)
+
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
         glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
-        glVertex3f( 2.0f,  2.0f,  0.0f); //oben rechts
+        glVertex3f( 1.0f,  1.0f,  0.0f); //oben rechts
         glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
     glEnd();
+
+    glPopMatrix(); // the old matrix is back
 
     // Execute all issued GL commands
     glFlush(); // replace with glutSwapBuffers() for double buffered mode
