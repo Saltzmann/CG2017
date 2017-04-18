@@ -76,10 +76,10 @@ void draw()
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
     // Draw shape
-    glBegin(GL_TRIANGLES);
-        glVertex3f( 1.0f, -1.0f,  0.0f);
-        glVertex3f( 1.0f,  1.0f,  0.0f);
-        glVertex3f(-1.0f,  1.0f,  0.0f);
+    glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
+        glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
+        glVertex3f( 2.0f,  2.0f,  0.0f); //oben rechts
+        glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
     glEnd();
 
     // Execute all issued GL commands
