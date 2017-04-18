@@ -41,6 +41,11 @@ void update(int v)
 
     // Needs to be registered again
     glutTimerFunc((unsigned int) 1000.0f / UPDATE_RATE, update, v);
+    //glutTimerFunc ist nur bedingt gut für eine flüssige Drehung, da TimerFunc immer
+    //registiert werden müssen und dann lower bound nach der Zeit ausgeführt werden
+    //man hat also nicht immer eine flüssige Bewegung
+    //besser könnte sein das Redraw immer in festen Abständen zu machen
+    //zum Beispiel in dem es durch so etwas wie den GlutMainLoop gesteuert wird
 }
 
 
