@@ -22,12 +22,15 @@ unsigned int counter = 0;
 void init()
 {
     glEnable(GL_DEPTH_TEST);
+    //A1.6
     glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
     glShadeModel(GL_SMOOTH);
-    //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
+
+    //A1.3
     //glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
 }
@@ -41,11 +44,15 @@ void update(int v)
 
     // Needs to be registered again
     glutTimerFunc((unsigned int) 1000.0f / UPDATE_RATE, update, v);
+
+    //A1.11
     //glutTimerFunc ist nur bedingt gut für eine flüssige Drehung, da TimerFunc immer
     //registiert werden müssen und dann lower bound nach der Zeit ausgeführt werden
     //man hat also nicht immer eine flüssige Bewegung
+    //und es könnte zusätzlich noch hardwareabhängig sein, wann diese Funktion auf unterschiedlichen
+    //Rechnern ausgeführt wird
     //besser könnte sein das Redraw immer in festen Abständen zu machen
-    //zum Beispiel in dem es durch so etwas wie den GlutMainLoop gesteuert wird
+    //zum Beispiel in dem es durch so etwas wie den (Glut)MainLoop gesteuert wird
 }
 
 
@@ -78,12 +85,27 @@ void draw()
     // Apply model view transformations
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    //Objet 7 Einheiten in den Raum "weg" schieben
     glTranslatef(0.0f, 0.0f, -7.0f);
 
-    glRotatef(45 + counter*0, 0, 0, 1); // now rotate
+    //A1.5
+    //Rotation entlang der Z Achse um 45°
+    //glRotatef(45 + counter*0, 0, 0, 1);
+
+    //A1.6
+    glTranslatef(0.0f, 0.0f, 7.0f); //Zurück auf 0,0,0
+    glRotatef(180, 0.f, 1.f, 0.f);
+    glTranslatef(0.0f, 0.0f, -7.0f);
+
+    //A1.6
+    glCullFace(GL_FRONT); //Option 2
+
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+
+    //A1.4
+    //Koordinatenursprung liegt auf der Mitte der Hypothenuse
 
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
@@ -101,8 +123,6 @@ void draw()
         glColor4f(0.0f, 0.0f, 0.0f, 0.0f); //schwarz
         glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
     glEnd();
-
-    //glPopMatrix(); // the old matrix is back
 
     // Execute all issued GL commands
     glFlush(); // replace with glutSwapBuffers() for double buffered mode
