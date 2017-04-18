@@ -75,7 +75,7 @@ void draw()
     //glPushMatrix(); //you do this to avoid disturbing the transformation matrices for any code following the below lines
 
     //glTranslatef(0.0f, 0.0f, 7.0f); // translate so that (0, 0, -7) lies at the origin
-    glRotatef(45 + counter*1, 0, 0, 1); // now rotate
+    glRotatef(45 + counter*0, 0, 0, 1); // now rotate
     //glTranslatef(0.0f, 0.0f, -7.0f); // translate back
 
     // Set color for drawing
@@ -86,6 +86,10 @@ void draw()
         glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
         glVertex3f( 1.0f,  1.0f,  0.0f); //oben rechts
         glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
+
+        glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
+        glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
+        glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
     glEnd();
 
     //glPopMatrix(); // the old matrix is back
