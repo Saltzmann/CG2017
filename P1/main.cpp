@@ -25,7 +25,12 @@ void init()
     //A1.6
     glEnable(GL_CULL_FACE); //Option 1
     glDepthFunc(GL_LEQUAL);
+
+    //A1.9
+    //glShadeModel(GL_FLAT);
     glShadeModel(GL_SMOOTH);
+
+
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -69,6 +74,8 @@ void reshape(GLsizei width, GLsizei height)
    // Set projection matrix to a perspective projection
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
+
+   //A1.10
    //gluPerspective(45.0f, aspect, 0.1, 100.0);
    glOrtho(-3.0f, 3.0f, -3.0f, 3.0f, -5, 100);
    //Der 2D Körper hat keinen Fluchtpunkt, daher kann man den Unterschied zwischen
@@ -90,15 +97,16 @@ void draw()
 
     //A1.5
     //Rotation entlang der Z Achse um 45°
-    //glRotatef(45 + counter*0, 0, 0, 1);
+    //glRotatef(45, 0, 0, 1);
+
+    //A1.7
+    glRotatef(45 + counter*0.5f, 0.f, 0.f, 1.f);
 
     //A1.6
-    glTranslatef(0.0f, 0.0f, 7.0f); //Zurück auf 0,0,0
-    glRotatef(180, 0.f, 1.f, 0.f);
-    glTranslatef(0.0f, 0.0f, -7.0f);
+    //glRotatef(180, 0.f, 1.f, 0.f);
 
     //A1.6
-    glCullFace(GL_FRONT); //Option 2
+    //glCullFace(GL_FRONT); //Option 2
 
 
     // Set color for drawing
@@ -107,6 +115,7 @@ void draw()
     //A1.4
     //Koordinatenursprung liegt auf der Mitte der Hypothenuse
 
+    //A1.8 und A1.9
     // Draw shape
     glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
         glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //rot
