@@ -12,11 +12,13 @@
 //unsigned int counter = 0;
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
-
+    _angle = 0.0f;
 }
 
-int MyGLWidget::heightForWidth(int width) {
-    return width;
+void MyGLWidget::rotate() {
+    glRotatef(_angle, 0.f, 0.f, 1.f);
+    _angle = (_angle >= 360) ? 0 : (_angle + 0.5f);
+    this->update();
 }
 
 void MyGLWidget::initializeGL() {
@@ -44,7 +46,7 @@ void MyGLWidget::resizeGL(int width, int height) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glFrustum(-0.05, 0.05, -0.05, 0.05, 0.1, 100.0);
+    glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);
 }
 
 void MyGLWidget::paintGL() {
@@ -56,9 +58,6 @@ void MyGLWidget::paintGL() {
     glLoadIdentity();
     //Objet 7 Einheiten in den Raum "weg" schieben
     glTranslatef(0.0f, 0.0f, -7.0f);
-
-    //A1.7
-    glRotatef(45, 0.f, 0.f, 1.f);
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
@@ -79,10 +78,4 @@ void MyGLWidget::paintGL() {
         glColor4f(0.0f, 0.0f, 0.0f, 0.0f); //schwarz
         glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
     glEnd();
-
-    // Execute all issued GL commands
-    //glFlush(); // replace with glutSwapBuffers() for double buffered mode
-
-    // Increment counter
-    //counter++;
 }

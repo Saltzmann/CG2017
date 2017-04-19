@@ -52,6 +52,9 @@
           <layout class="QHBoxLayout" name="hblRotationZ">
            <item>
             <widget class="QSlider" name="sldRotationZ">
+             <property name="maximum">
+              <number>359</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>
@@ -65,7 +68,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="sbxRotationZ"/>
+            <widget class="QSpinBox" name="sbxRotationZ">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="maximum">
+              <number>359</number>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -87,5 +97,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>sldRotationZ</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sbxRotationZ</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>447</x>
+     <y>541</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>580</x>
+     <y>539</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
