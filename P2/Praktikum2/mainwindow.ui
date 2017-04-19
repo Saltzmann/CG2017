@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>400</height>
+    <width>630</width>
+    <height>655</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,65 +19,73 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>401</width>
-      <height>401</height>
+      <width>601</width>
+      <height>551</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="vblControls">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
      <item>
-      <widget class="QGroupBox" name="gbxRotation">
-       <property name="title">
-        <string>GroupBox</string>
+      <widget class="MyGLWidget" name="myglwid" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>400</height>
+        </size>
        </property>
-       <widget class="QWidget" name="horizontalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>230</x>
-          <y>310</y>
-          <width>160</width>
-          <height>80</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="hblRotationZ">
-         <item>
-          <widget class="QSlider" name="sldRotationZ">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="lblRotationZ">
-           <property name="text">
-            <string>TextLabel</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="sbxRotationZ"/>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
      <item>
-      <spacer name="hspPlaceholder">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
+      <widget class="QGroupBox" name="gbxRotation">
+       <property name="maximumSize">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>800</width>
+         <height>16777215</height>
         </size>
        </property>
-      </spacer>
+       <property name="title">
+        <string>GroupBox</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="hblRotationZ">
+          <item>
+           <widget class="QSlider" name="sldRotationZ">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblRotationZ">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="sbxRotationZ"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
      </item>
     </layout>
    </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MyGLWidget</class>
+   <extends>QWidget</extends>
+   <header>myglwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

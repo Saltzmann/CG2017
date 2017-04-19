@@ -6,6 +6,10 @@
 
 QT       += core gui
 
+# Link against OpenGL for Qt >= 5.5
+LIBS += -lopengl32
+
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Praktikum2
@@ -24,8 +28,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    myglwidget.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    myglwidget.h
 
 FORMS    += mainwindow.ui
