@@ -6,8 +6,12 @@
 
 class MyGLWidget : public QOpenGLWidget
 {
+
 public:
-    MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {}
+    MyGLWidget(QWidget *parent);
+    void initializeGL();
+    void paintGL();
+    void resizeGL(int width, int height);
 };
 
 #endif // MYGLWIDGET_H
