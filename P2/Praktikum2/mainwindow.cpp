@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QObject::connect(ui->myglwid, SIGNAL(sendZOffset(int)),
+                     ui->sbxScaleZ, SLOT(setValue(int)));
 }
 
 MainWindow::~MainWindow()
