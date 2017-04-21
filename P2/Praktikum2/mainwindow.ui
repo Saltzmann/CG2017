@@ -63,7 +63,10 @@
            <item>
             <widget class="QLabel" name="lblRotationZ">
              <property name="text">
-              <string>TextLabel</string>
+              <string>Drehung</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
              </property>
             </widget>
            </item>
@@ -74,6 +77,26 @@
              </property>
              <property name="maximum">
               <number>359</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblScaleZ">
+             <property name="text">
+              <string>Zoom</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbxScaleZ">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="suffix">
+              <string/>
              </property>
             </widget>
            </item>
@@ -108,12 +131,12 @@
    <slot>setValue(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>447</x>
-     <y>541</y>
+     <x>361</x>
+     <y>546</y>
     </hint>
     <hint type="destinationlabel">
-     <x>580</x>
-     <y>539</y>
+     <x>495</x>
+     <y>550</y>
     </hint>
    </hints>
   </connection>

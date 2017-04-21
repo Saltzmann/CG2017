@@ -14,7 +14,7 @@
 //unsigned int counter = 0;
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
-    _angle = 0.f;
+    _angle = 0;
     _XOffset = 0.f;
     _YOffset = 0.f;
     _ZOffset = INITIAL_CAMERA_OFFSET;
@@ -22,7 +22,18 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     setFocusPolicy(Qt::StrongFocus);
 }
 
+void MyGLWidget::wheelEvent(QWheelEvent *event) {
+    int numDegrees = (event->angleDelta() / 8).y(); // durch 8 weil dann Angabe in Grad
 
+    if (numDegrees != 0) {
+        int numSteps = numDegrees / 15;
+        _ZOffset += (float)numSteps * 0.01f;
+        emit sendZOffset(_ZOffset);
+        //qDebug() << _ZOffset;
+    }
+    event->accept();
+    this->update();
+}
 
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     //Oben
@@ -41,16 +52,23 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     else if(event->key() == (int)Qt::Key_D || event->key() == (int)Qt::Key_Right) {
         _XOffset += 0.1f;
     }
+    else if(event->key() == (int)Qt::Key_Q) {
+        _SetAngle(--_angle);
+    }
+    else if(event->key() == (int)Qt::Key_E) {
+        _SetAngle(++_angle);
+    }
     else {
         QOpenGLWidget::keyPressEvent(event);
     }
+    event->accept();
     this->update();
     //Wenn wir die Sliderwerte über die Tastatur verändern passiert nichts mehr...
 }
 
 void MyGLWidget::receiveRotationZ(int degrees) {
     //qDebug() << qintptr(degrees);
-    _angle = degrees;
+    _SetAngle(degrees);
 }
 
 void MyGLWidget::initializeGL() {
@@ -87,10 +105,10 @@ void MyGLWidget::paintGL() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     //Objet 7 Einheiten in den Raum "weg" schieben
-    glTranslatef(-_XOffset, -_YOffset, -7.0f);
+    glTranslatef(-_XOffset, -_YOffset, -_ZOffset);
 
     //Rotieren?
-    glRotated(_angle, 0.f, 0.f, 1.f);
+    glRotated((float)_angle, 0.f, 0.f, 1.f);
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
@@ -114,4 +132,10 @@ void MyGLWidget::paintGL() {
 
     this->update();
     //this->repaint();
+}
+
+void MyGLWidget::_SetAngle(int degrees) {
+    if(degrees > 359) _angle = 0;
+    else if(degrees < 0) _angle = 359;
+    else _angle = degrees;
 }
