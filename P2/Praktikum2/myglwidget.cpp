@@ -7,28 +7,49 @@
 #define WINDOW_WIDTH 480
 #define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
+#define INITIAL_CAMERA_OFFSET 7.0f
 
 // global variable for engine purposes
 // not pretty and hardware-dependent, but gets the job done
 //unsigned int counter = 0;
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
-    if(this->updatesEnabled()) {
-        qDebug() << "updates are enabled";
-    }
+    _angle = 0.f;
+    _XOffset = 0.f;
+    _YOffset = 0.f;
+    _ZOffset = INITIAL_CAMERA_OFFSET;
+    //
+    setFocusPolicy(Qt::StrongFocus);
 }
 
-void MyGLWidget::keyPressEvent(QKeyEvent *eventt) {
-    if (eventt->key() == (int)Qt::Key_Escape) {
-        // do something
+
+
+void MyGLWidget::keyPressEvent(QKeyEvent *event) {
+    //Oben
+    if (event->key() == (int)Qt::Key_W || event->key() == (int)Qt::Key_Up) {
+        _YOffset += 0.1f;
+    }
+    //Unten
+    else if(event->key() == (int)Qt::Key_S || event->key() == (int)Qt::Key_Down) {
+        _YOffset -= 0.1f;
+    }
+    //Links
+    else if(event->key() == (int)Qt::Key_A || event->key() == (int)Qt::Key_Left) {
+        _XOffset  -= 0.1f;
+    }
+    //Rechts
+    else if(event->key() == (int)Qt::Key_D || event->key() == (int)Qt::Key_Right) {
+        _XOffset += 0.1f;
     }
     else {
-        QOpenGLWidget::keyPressEvent(eventt);
+        QOpenGLWidget::keyPressEvent(event);
     }
+    this->update();
+    //Wenn wir die Sliderwerte über die Tastatur verändern passiert nichts mehr...
 }
 
 void MyGLWidget::receiveRotationZ(int degrees) {
-    qDebug() << qintptr(degrees);
+    //qDebug() << qintptr(degrees);
     _angle = degrees;
 }
 
@@ -48,8 +69,6 @@ void MyGLWidget::resizeGL(int width, int height) {
     //height = (height == 0) ? 1 : height;
     GLfloat aspect = (GLfloat)width / (GLfloat)height;
 
-    //glViewport(0,0,width, height);
-
     // Set viewport to cover the whole window
     glViewport(0, 0, width, height);
 
@@ -68,7 +87,7 @@ void MyGLWidget::paintGL() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     //Objet 7 Einheiten in den Raum "weg" schieben
-    glTranslatef(0.0f, 0.0f, -7.0f);
+    glTranslatef(-_XOffset, -_YOffset, -7.0f);
 
     //Rotieren?
     glRotated(_angle, 0.f, 0.f, 1.f);
