@@ -94,6 +94,9 @@
    <extends>QWidget</extends>
    <header>myglwidget.h</header>
    <container>1</container>
+   <slots>
+    <slot>receiveRotationZ(int)</slot>
+   </slots>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -111,6 +114,22 @@
     <hint type="destinationlabel">
      <x>580</x>
      <y>539</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sldRotationZ</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>myglwid</receiver>
+   <slot>receiveRotationZ(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>544</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>287</y>
     </hint>
    </hints>
   </connection>

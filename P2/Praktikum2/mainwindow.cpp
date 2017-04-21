@@ -6,6 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //QObject::connect(ui->sldRotationZ, SIGNAL(valueChanged(int),
+    //                 ui->myglwid, SLOT(receiveRotationZ(int));
 }
 
 MainWindow::~MainWindow()

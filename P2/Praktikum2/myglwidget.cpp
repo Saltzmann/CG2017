@@ -1,4 +1,5 @@
 #include "myglwidget.h"
+#include <qdebug.h>
 
 #define WINDOW_CAPTION "Computergrafik Praktikum"
 #define WINDOW_XPOS 50
@@ -12,13 +13,23 @@
 //unsigned int counter = 0;
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
-    _angle = 0.0f;
+    if(this->updatesEnabled()) {
+        qDebug() << "updates are enabled";
+    }
 }
 
-void MyGLWidget::rotate() {
-    glRotatef(_angle, 0.f, 0.f, 1.f);
-    _angle = (_angle >= 360) ? 0 : (_angle + 0.5f);
-    this->update();
+void MyGLWidget::keyPressEvent(QKeyEvent *eventt) {
+    if (eventt->key() == (int)Qt::Key_Escape) {
+        // do something
+    }
+    else {
+        QOpenGLWidget::keyPressEvent(eventt);
+    }
+}
+
+void MyGLWidget::receiveRotationZ(int degrees) {
+    qDebug() << qintptr(degrees);
+    _angle = degrees;
 }
 
 void MyGLWidget::initializeGL() {
@@ -40,7 +51,7 @@ void MyGLWidget::resizeGL(int width, int height) {
     //glViewport(0,0,width, height);
 
     // Set viewport to cover the whole window
-    //glViewport(0, 0, width, height);
+    glViewport(0, 0, width, height);
 
     // Set projection matrix to a perspective projection
     glMatrixMode(GL_PROJECTION);
@@ -58,6 +69,9 @@ void MyGLWidget::paintGL() {
     glLoadIdentity();
     //Objet 7 Einheiten in den Raum "weg" schieben
     glTranslatef(0.0f, 0.0f, -7.0f);
+
+    //Rotieren?
+    glRotated(_angle, 0.f, 0.f, 1.f);
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
@@ -78,4 +92,7 @@ void MyGLWidget::paintGL() {
         glColor4f(0.0f, 0.0f, 0.0f, 0.0f); //schwarz
         glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
     glEnd();
+
+    this->update();
+    //this->repaint();
 }
