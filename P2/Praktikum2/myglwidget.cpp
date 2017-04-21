@@ -20,6 +20,12 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
     _ZOffset = INITIAL_CAMERA_OFFSET;
     //
     setFocusPolicy(Qt::StrongFocus);
+
+    _myTimer = new QTimer(this);
+    connect(_myTimer, SIGNAL(timeout()),
+            this, SLOT(autoRotateZ()));
+    _myTimer->start(1000/60);
+    qDebug() << _myTimer->isActive();
 }
 
 void MyGLWidget::wheelEvent(QWheelEvent *event) {
@@ -58,6 +64,14 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     else if(event->key() == (int)Qt::Key_E) {
         _SetAngle(++_angle);
     }
+    else if(event->key() == Qt::Key_Space) {
+        if(_myTimer->isActive()) {
+            _myTimer->stop();
+        }
+        else {
+            _myTimer->start(1000/60);
+        }
+    }
     else {
         QOpenGLWidget::keyPressEvent(event);
     }
@@ -73,9 +87,9 @@ void MyGLWidget::receiveRotationZ(int degrees) {
 
 void MyGLWidget::initializeGL() {
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    glShadeModel(GL_SMOOTH);
+    glShadeModel(GL_FLAT);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -108,26 +122,58 @@ void MyGLWidget::paintGL() {
     glTranslatef(-_XOffset, -_YOffset, -_ZOffset);
 
     //Rotieren?
-    glRotated((float)_angle, 0.f, 0.f, 1.f);
+    glRotatef(45.f + (float)_angle, 0.f, 1.f, 0.f);
+
+    glRotatef(10.f, 1.f, 0.f, 0.f);
+    glRotatef(30.f + (float)_angle, 0.f, 0.f, 1.f);
 
     // Set color for drawing
     glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
     // Draw shape
-    glBegin(GL_TRIANGLES); //x,y,z -> z = Ebene
-        glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //rot
-        glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f); //weiß
-        glVertex3f( 1.0f,  1.0f,  0.0f); //oben rechts
-        glColor4f(0.0f, 0.0f, 1.0f, 1.0f); //blau
-        glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
+    glBegin(GL_QUADS);
+        //vorne - rot
+        glColor4f(1.f, 0.f, 0.f, 1.f);
+            glVertex3i(-1, -1, 1);
+            glVertex3i(1, -1, 1);
+            glVertex3i(1, 1, 1);
+            glVertex3i(-1, 1, 1);
 
-        glColor4f(1.0f, 0.0f, 0.0f, 1.0f); //rot
-        glVertex3f( 1.0f, -1.0f,  0.0f); //unten rechts
-        glColor4f(0.0f, 0.0f, 1.0f, 1.0f); //blau
-        glVertex3f(-1.0f,  1.0f,  0.0f); //oben links
-        glColor4f(0.0f, 0.0f, 0.0f, 0.0f); //schwarz
-        glVertex3f(-1.0f, -1.0f,  0.0f); //unten links
+        //links - grün
+        glColor4f(0.f, 1.f, 0.f, 1.f);
+            glVertex3i(-1, 1, 1);
+            glVertex3i(-1, 1, -1);
+            glVertex3i(-1, -1, -1);
+            glVertex3i(-1, -1, 1);
+
+        //unten - gelb
+        glColor4f(1.f, 1.f, 0.f, 1.f);
+            glVertex3i(-1, -1, 1);
+            glVertex3i(-1, -1, -1);
+            glVertex3i(1, -1, -1);
+            glVertex3i(1, -1, 1);
+
+        //hinten - orange
+        glColor4f(1.f, 0.647059f, 0.f, 1.f);
+            glVertex3i(-1, -1, -1);
+            glVertex3i(-1, 1, -1);
+            glVertex3i(1, 1, -1);
+            glVertex3i(1, -1, -1);
+
+        //rechts - blau
+        glColor4f(0.f, 0.f, 1.f, 1.f);
+            glVertex3i(1, -1, -1);
+            glVertex3i(1, 1, -1);
+            glVertex3i(1, 1, 1);
+            glVertex3i(1, -1, 1);
+
+        //oben - weiß
+        glColor4f(1.f, 1.f, 1.f, 1.f);
+            glVertex3i(-1, 1, -1);
+            glVertex3i(-1, 1, 1);
+            glVertex3i(1, 1, 1);
+            glVertex3i(1, 1, -1);
+
     glEnd();
 
     this->update();
@@ -138,4 +184,9 @@ void MyGLWidget::_SetAngle(int degrees) {
     if(degrees > 359) _angle = 0;
     else if(degrees < 0) _angle = 359;
     else _angle = degrees;
+}
+
+void MyGLWidget::autoRotateZ() {
+    _angle++;
+    this->update();
 }

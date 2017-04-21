@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QKeyEvent>
 #include <QWheelEvent>
+#include <QTimer>
 
 class MyGLWidget : public QOpenGLWidget
 {
@@ -15,6 +16,7 @@ private:
     float _YOffset;
     float _ZOffset;
     void _SetAngle(int degrees);
+    QTimer* _myTimer;
 public:
     MyGLWidget(QWidget *parent);
     void initializeGL();
@@ -24,6 +26,7 @@ public:
     void wheelEvent(QWheelEvent *event);
 public slots:
     void receiveRotationZ(int degrees);
+    void autoRotateZ();
 signals:
     void sendZOffset(int value);
 };
