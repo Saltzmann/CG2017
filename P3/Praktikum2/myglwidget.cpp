@@ -89,7 +89,7 @@ void MyGLWidget::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_FLAT); //DEPRECATED
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -105,10 +105,9 @@ void MyGLWidget::resizeGL(int width, int height) {
     glViewport(0, 0, width, height);
 
     // Set projection matrix to a perspective projection
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-
-    glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);
+    glMatrixMode(GL_PROJECTION); //DEPRECATED
+    glLoadIdentity();  //DEPRECATED
+    glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);  //DEPRECATED
 }
 
 void MyGLWidget::paintGL() {
@@ -116,65 +115,65 @@ void MyGLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Apply model view transformations
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    //Objet 7 Einheiten in den Raum "weg" schieben
-    glTranslatef(-_XOffset, -_YOffset, -_ZOffset);
+    glMatrixMode(GL_MODELVIEW);  //DEPRECATED
+    glLoadIdentity();  //DEPRECATED
+    //Objekt 7 Einheiten in den Raum "weg" schieben
+    glTranslatef(-_XOffset, -_YOffset, -_ZOffset);  //DEPRECATED
 
     //Rotieren?
-    glRotatef(45.f + (float)_angle, 0.f, 1.f, 0.f);
+    glRotatef(45.f + (float)_angle, 0.f, 1.f, 0.f); //DEPRECATED
 
     glRotatef(10.f, 1.f, 0.f, 0.f);
-    glRotatef(30.f + (float)_angle, 0.f, 0.f, 1.f);
+    glRotatef(30.f + (float)_angle, 0.f, 0.f, 1.f); //DEPRECATED
 
     // Set color for drawing
-    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);  //DEPRECATED
 
     // Draw shape
-    glBegin(GL_QUADS);
+    glBegin(GL_QUADS);  //DEPRECATED
         //vorne - rot
-        glColor4f(1.f, 0.f, 0.f, 1.f);
-            glVertex3i(-1, -1, 1);
-            glVertex3i(1, -1, 1);
-            glVertex3i(1, 1, 1);
-            glVertex3i(-1, 1, 1);
+        glColor4f(1.f, 0.f, 0.f, 1.f);  //DEPRECATED
+            glVertex3i(-1, -1, 1);  //DEPRECATED
+            glVertex3i(1, -1, 1); //DEPRECATED
+            glVertex3i(1, 1, 1); //DEPRECATED
+            glVertex3i(-1, 1, 1); //DEPRECATED
 
         //links - grün
-        glColor4f(0.f, 1.f, 0.f, 1.f);
-            glVertex3i(-1, 1, 1);
-            glVertex3i(-1, 1, -1);
-            glVertex3i(-1, -1, -1);
-            glVertex3i(-1, -1, 1);
+        glColor4f(0.f, 1.f, 0.f, 1.f); //DEPRECATED
+            glVertex3i(-1, 1, 1); //DEPRECATED
+            glVertex3i(-1, 1, -1); //DEPRECATED
+            glVertex3i(-1, -1, -1); //DEPRECATED
+            glVertex3i(-1, -1, 1); //DEPRECATED
 
         //unten - gelb
-        glColor4f(1.f, 1.f, 0.f, 1.f);
-            glVertex3i(-1, -1, 1);
-            glVertex3i(-1, -1, -1);
-            glVertex3i(1, -1, -1);
-            glVertex3i(1, -1, 1);
+        glColor4f(1.f, 1.f, 0.f, 1.f); //DEPRECATED
+            glVertex3i(-1, -1, 1); //DEPRECATED
+            glVertex3i(-1, -1, -1); //DEPRECATED
+            glVertex3i(1, -1, -1); //DEPRECATED
+            glVertex3i(1, -1, 1); //DEPRECATED
 
         //hinten - orange
-        glColor4f(1.f, 0.647059f, 0.f, 1.f);
-            glVertex3i(-1, -1, -1);
-            glVertex3i(-1, 1, -1);
-            glVertex3i(1, 1, -1);
-            glVertex3i(1, -1, -1);
+        glColor4f(1.f, 0.647059f, 0.f, 1.f); //DEPRECATED
+            glVertex3i(-1, -1, -1); //DEPRECATED
+            glVertex3i(-1, 1, -1); //DEPRECATED
+            glVertex3i(1, 1, -1); //DEPRECATED
+            glVertex3i(1, -1, -1); //DEPRECATED
 
         //rechts - blau
-        glColor4f(0.f, 0.f, 1.f, 1.f);
-            glVertex3i(1, -1, -1);
-            glVertex3i(1, 1, -1);
-            glVertex3i(1, 1, 1);
-            glVertex3i(1, -1, 1);
+        glColor4f(0.f, 0.f, 1.f, 1.f); //DEPRECATED
+            glVertex3i(1, -1, -1); //DEPRECATED
+            glVertex3i(1, 1, -1); //DEPRECATED
+            glVertex3i(1, 1, 1); //DEPRECATED
+            glVertex3i(1, -1, 1); //DEPRECATED
 
         //oben - weiß
-        glColor4f(1.f, 1.f, 1.f, 1.f);
-            glVertex3i(-1, 1, -1);
-            glVertex3i(-1, 1, 1);
-            glVertex3i(1, 1, 1);
-            glVertex3i(1, 1, -1);
+        glColor4f(1.f, 1.f, 1.f, 1.f); //DEPRECATED
+            glVertex3i(-1, 1, -1); //DEPRECATED
+            glVertex3i(-1, 1, 1); //DEPRECATED
+            glVertex3i(1, 1, 1); //DEPRECATED
+            glVertex3i(1, 1, -1); //DEPRECATED
 
-    glEnd();
+    glEnd(); //DEPRECATED
 
     this->update();
     //this->repaint();
