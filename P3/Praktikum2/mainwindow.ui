@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>630</width>
+    <height>655</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Praktikum 2 Fenster</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="maximumSize">
+    <size>
+     <width>800</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="vblControls">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <widget class="MyGLWidget" name="myglwid" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>400</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gbxRotation">
+        <property name="maximumSize">
+         <size>
+          <width>800</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>GroupBox</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="hblRotationZ">
+           <item>
+            <widget class="QSlider" name="sldRotationZ">
+             <property name="maximum">
+              <number>359</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblRotationZ">
+             <property name="text">
+              <string>Drehung</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbxRotationZ">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="maximum">
+              <number>359</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblScaleZ">
+             <property name="text">
+              <string>Zoom</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sbxScaleZ">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="suffix">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MyGLWidget</class>
+   <extends>QWidget</extends>
+   <header>myglwidget.h</header>
+   <container>1</container>
+   <slots>
+    <slot>receiveRotationZ(int)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>sldRotationZ</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sbxRotationZ</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>361</x>
+     <y>546</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>495</x>
+     <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sldRotationZ</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>myglwid</receiver>
+   <slot>receiveRotationZ(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>544</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>287</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
