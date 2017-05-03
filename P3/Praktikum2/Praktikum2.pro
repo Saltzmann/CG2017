@@ -4,7 +4,6 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
 QT       += core gui opengl
 
 # Link against OpenGL for Qt >= 5.5
