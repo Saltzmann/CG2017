@@ -6,6 +6,7 @@
 #include <QKeyEvent>
 #include <QWheelEvent>
 #include <QTimer>
+#include <QOpenGLBuffer>
 
 class MyGLWidget : public QOpenGLWidget
 {
@@ -17,6 +18,9 @@ private:
     float _ZOffset;
     void _SetAngle(int degrees);
     QTimer* _myTimer;
+    //Praktikum 3
+    QOpenGLBuffer _vbo;
+    QOpenGLBuffer _ibo;
 public:
     MyGLWidget(QWidget *parent);
     void initializeGL();

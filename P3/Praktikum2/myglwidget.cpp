@@ -13,7 +13,10 @@
 // not pretty and hardware-dependent, but gets the job done
 //unsigned int counter = 0;
 
-MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent) {
+MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
+                                          _vbo(QOpenGLBuffer::VertexBuffer),
+                                          _ibo(QOpenGLBuffer::IndexBuffer)
+                                        {
     _angle = 0;
     _XOffset = 0.f;
     _YOffset = 0.f;
