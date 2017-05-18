@@ -8,6 +8,9 @@
 #include <QTimer>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
+#include <QOpenGLDebugLogger>
+#include <qdebug.h>
+#include <QMetaEnum>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -26,10 +29,8 @@ private:
     //Arrays für Buffer
     GLfloat *_vertices;
     GLubyte *_indices;
-    // Handle für VBO (Eckpunkte + Farben)
-    GLuint _vboHandle;
-    // Handle für BO der Indizes für die zu zeichnenden Elemente
-    GLuint _indicesHandle;
+    //The Debug Logger Ladies and Gents
+    QOpenGLDebugLogger* debugLogger;
 public:
     MyGLWidget(QWidget *parent);
     void initializeGL();
@@ -42,6 +43,7 @@ public:
 public slots:
     void receiveRotationZ(int degrees);
     void autoRotateZ();
+    void onMessageLogged(QOpenGLDebugMessage message);
 signals:
     void sendZOffset(int value);
 };

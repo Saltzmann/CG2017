@@ -8,6 +8,12 @@ QT       += core gui opengl
 
 # Link against OpenGL for Qt >= 5.5
 LIBS += -lopengl32
+unix: LIBS += -lassimp
+# Windows can't deal with assimp as a system library for some reason
+win32: LIBS += -LC:/Users/Tobias/Documents/GitHub/CG2017/assimp-win-mingw32/code/ -lassimp
+win32: INCLUDEPATH += C:/Users/Tobias/Documents/GitHub/CG2017/assimp-win-mingw32/include
+win32: DEPENDPATH += C:/Users/Tobias/Documents/GitHub/CG2017/assimp-win-mingw32/include
+
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
