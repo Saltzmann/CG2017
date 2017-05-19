@@ -122,7 +122,7 @@ void MyGLWidget::initializeGL() {
     // Kompiliere und linke die Shader-Programme
     _shaderProgram.link();
 
-    buildGeometry();
+    //buildGeometry();
 
     fillBuffers();
 }
@@ -137,7 +137,6 @@ void MyGLWidget::resizeGL(int width, int height) {
 }
 
 void MyGLWidget::buildGeometry() {
-
     // Eckpunkte
     // (6 Rechteck mit 4 Eckpunkten mit je 4 Koordinaten und 4 Farbkanälen)
     _vertices = new GLfloat[4*(4+4)];
@@ -195,18 +194,46 @@ void MyGLWidget::buildGeometry() {
     _indices[5] = 0;
 }
 
+void MyGLWidget::initializeVBOs() {
+    // Lade Modell aus Datei
+    // Anm.: Linux/Unix kommt mit einem relativen Pfad hier evtl. nicht zurecht
+    ModelLoader model;
+    bool res = model.loadObjectFromFile("C:/Users/Tobias/Documents/GitHub/CG2017/P3/Praktikum3/bunny.obj");
+    // Wenn erfolgreich, generiere VBO und Index-Array
+    if (res) {
+        // Frage zu erwartende Array-Längen ab
+        _vboLength = model.lengthOfSimpleVBO();
+        _iboLength = model.lengthOfIndexArray();
+        // Generiere VBO und Index-Array
+        _vboData = new GLfloat[_vboLength];
+        _indexData = new GLuint[_iboLength];
+        model.genSimpleVBO(_vboData);
+        model.genIndexArray(_indexData);
+        qDebug() << "Models laden erfolgreich!";
+    }
+    else {
+        // Modell konnte nicht geladen werden
+        qDebug() << "Models laden fehlgeschlagen!";
+        Q_ASSERT(false);
+    }
+    //...
+    _vbo.allocate(_vboData, sizeof(GLfloat) * _vboLength);
+    _ibo.allocate(_indexData, sizeof(GLuint) * _iboLength);
+}
+
 void MyGLWidget::fillBuffers() {
-    // Erzeuge VBO, die Parameter verteilen sich hier auf mehrere Methoden
     _vbo.create();
-    _vbo.bind();
-    _vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    _vbo.allocate(_vertices, sizeof(GLfloat) * 4 * 8);
-    _vbo.release();
-    // Erzeuge Index-Buffer
     _ibo.create();
+
+    _vbo.bind();
     _ibo.bind();
+
+    _vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     _ibo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    _ibo.allocate(_indices, sizeof(GLubyte) * 6);
+
+    initializeVBOs();
+
+    _vbo.release();
     _ibo.release();
 }
 
@@ -222,10 +249,10 @@ void MyGLWidget::paintGL() {
     // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
     int attrVertices = 0;
     // Lokalisiere bzw. definiere die Schnittstelle für die Farben
-    int attrColors = 1;
+    //int attrColors = 1;
     // Aktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.enableAttributeArray(attrVertices);
-    _shaderProgram.enableAttributeArray(attrColors);
+    //_shaderProgram.enableAttributeArray(attrColors);
     // Lokalisiere bzw. definiere die Schnittstelle für die Transformationsmatrix
     // Die Matrix kann direkt übergeben werden, da setUniformValue für diesen Typ
     // überladen ist
@@ -239,8 +266,8 @@ void MyGLWidget::paintGL() {
 
     int unifPersMatrix = 0;
     matrix.setToIdentity();
-    matrix.perspective(60.0, 16.0/9.0, 0.1, 100.0);
-    matrix.translate(0.0, 0.0, - 7.0);
+    matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
+    matrix.translate(0.0, 0.0, - 10.0);
     _matrixStack.push(matrix);
 
     //Ab hier Stack abarbeiten
@@ -261,14 +288,14 @@ void MyGLWidget::paintGL() {
     int offset = 0;
     int stride = 8 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
-    offset += 4 * sizeof(GLfloat);
-    _shaderProgram.setAttributeBuffer(attrColors, GL_FLOAT, offset, 4, stride);
+    //offset += 4 * sizeof(GLfloat);
+    //_shaderProgram.setAttributeBuffer(attrColors, GL_FLOAT, offset, 4, stride);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0); //wieso hier 0?
+    glDrawElements(GL_TRIANGLES, _iboLength, GL_UNSIGNED_INT, 0);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);
-    _shaderProgram.disableAttributeArray(attrColors);
+    //_shaderProgram.disableAttributeArray(attrColors);
 
     _vbo.release();
     _ibo.release();

@@ -19,6 +19,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <QDebug>
+
 class ModelLoader
 {
 public:

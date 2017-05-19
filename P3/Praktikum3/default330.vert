@@ -12,11 +12,11 @@
 layout(location = 0)uniform mat4 perspectiveMatrix;
 layout(location = 1)uniform mat4 modelviewMatrix;
 layout(location = 0)in vec4 vert;
-layout(location = 1)in vec4 color;
+//layout(location = 1)in vec4 color;
 layout(location = 0)out vec4 col;
 
 void main() {
-    col = color;
+    col = vec4(1.0f, 0.0f, 0.0f, 1.0f);
     mat4 matrix = perspectiveMatrix * modelviewMatrix;
     gl_Position = matrix * vert;
 }
