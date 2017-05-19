@@ -129,7 +129,7 @@ void MyGLWidget::initializeGL() {
 
 void MyGLWidget::resizeGL(int width, int height) {
     // Compute aspect ratio
-    //height = (height == 0) ? 1 : height;
+    height = (height == 0) ? 1 : height;
     //GLfloat aspect = (GLfloat)width / (GLfloat)height;
 
     // Set viewport to cover the whole window
@@ -292,6 +292,5 @@ void MyGLWidget::autoRotateZ() {
 }
 
 void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
-    //std :: cout << message.message().toStdString() << std::endl;  // use this if qDebug output is not accessible
     qDebug() << message;
 }
