@@ -208,12 +208,12 @@ void MyGLWidget::_initializeVBOs() {
     // Wenn erfolgreich, generiere VBO und Index-Array
     if (res) {
         // Frage zu erwartende Array-Längen ab
-        _vboLength = model.lengthOfSimpleVBO();
+        _vboLength = model.lengthOfVBO();
         _iboLength = model.lengthOfIndexArray();
         // Generiere VBO und Index-Array
         _vboData = new GLfloat[_vboLength];
         _indexData = new GLuint[_iboLength];
-        model.genSimpleVBO(_vboData);
+        model.genVBO(_vboData);
         model.genIndexArray(_indexData);
         qDebug() << "Models laden erfolgreich!";
     }
@@ -269,7 +269,7 @@ void MyGLWidget::paintGL() {
 
     int unifModviewMatrix = 1;
     matrix.setToIdentity();
-    matrix.rotate(45.f + (float)_angle, 0.0, 0.0, 1.0);
+    matrix.rotate(45.f + (float)_angle, 0.0, 1.0, 0.0);
     _matrixStack.push(matrix);
 
     int unifPersMatrix = 0;
@@ -301,9 +301,9 @@ void MyGLWidget::paintGL() {
 
     // Fülle die Attribute-Buffer mit den korrekten Daten
     int offset = 0;
-    size_t stride = 8 * sizeof(GLfloat);
+    size_t stride = 12 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
-    offset += 4 * sizeof(GLfloat);
+    offset += 8 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
 
     glDrawElements(GL_TRIANGLES, _iboLength, GL_UNSIGNED_INT, 0);

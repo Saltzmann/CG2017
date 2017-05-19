@@ -44,6 +44,7 @@ private:
     GLuint* _indexData; // GLuint statt GLubyte, da viele Modelle groß sind
     unsigned int _vboLength;
     unsigned int _iboLength;
+    unsigned int _modelStride = 12;
 
     //Texturen
     QOpenGLTexture* _qTex;

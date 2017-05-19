@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>maybetexture.jpg</file>
+        <file>mercurybump.jpg</file>
+        <file>mercurymap.jpg</file>
     </qresource>
 </RCC>
