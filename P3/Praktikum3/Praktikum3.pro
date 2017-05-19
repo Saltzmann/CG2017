@@ -45,4 +45,5 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui
 
 RESOURCES += \
-    shader.qrc
+    shader.qrc \
+    textures.qrc

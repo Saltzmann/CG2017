@@ -6,11 +6,8 @@
 #define WINDOW_WIDTH 480
 #define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
-#define INITIAL_CAMERA_OFFSET 7.0f
+#define INITIAL_CAMERA_OFFSET 10.0f
 
-// global variable for engine purposes
-// not pretty and hardware-dependent, but gets the job done
-//unsigned int counter = 0;
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
                                           _vbo(QOpenGLBuffer::VertexBuffer),
@@ -116,6 +113,15 @@ void MyGLWidget::initializeGL() {
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
 
+    glEnable(GL_TEXTURE_2D);
+    // Schlagen Sie mirrored() nach - warum und wie wird die Textur gespiegelt?
+    _qTex = new QOpenGLTexture(QImage(":/maybetexture.jpg").mirrored());
+    // Schlagen Sie die Filter in der Dokumentation nach, wofür ist Mip-Mapping gut?
+    _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
+    // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
+    Q_ASSERT(_qTex->textureId() != 0);
+
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
@@ -194,11 +200,11 @@ void MyGLWidget::buildGeometry() {
     _indices[5] = 0;
 }
 
-void MyGLWidget::initializeVBOs() {
+void MyGLWidget::_initializeVBOs() {
     // Lade Modell aus Datei
     // Anm.: Linux/Unix kommt mit einem relativen Pfad hier evtl. nicht zurecht
     ModelLoader model;
-    bool res = model.loadObjectFromFile("C:/Users/Tobias/Documents/GitHub/CG2017/P3/Praktikum3/bunny.obj");
+    bool res = model.loadObjectFromFile("C:/Users/Tobias/Documents/GitHub/CG2017/P3/Praktikum3/sphere_high.obj");
     // Wenn erfolgreich, generiere VBO und Index-Array
     if (res) {
         // Frage zu erwartende Array-Längen ab
@@ -216,7 +222,7 @@ void MyGLWidget::initializeVBOs() {
         qDebug() << "Models laden fehlgeschlagen!";
         Q_ASSERT(false);
     }
-    //...
+
     _vbo.allocate(_vboData, sizeof(GLfloat) * _vboLength);
     _ibo.allocate(_indexData, sizeof(GLuint) * _iboLength);
 }
@@ -231,7 +237,7 @@ void MyGLWidget::fillBuffers() {
     _vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     _ibo.setUsagePattern(QOpenGLBuffer::StaticDraw);
 
-    initializeVBOs();
+    _initializeVBOs();
 
     _vbo.release();
     _ibo.release();
@@ -248,11 +254,13 @@ void MyGLWidget::paintGL() {
 
     // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
     int attrVertices = 0;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Farben
-    //int attrColors = 1;
+    // Lokalisiere bzw. definiere die Schnittstelle für die Textur
+    int attrTexCoords = 3;
     // Aktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.enableAttributeArray(attrVertices);
+    _shaderProgram.enableAttributeArray(attrTexCoords);
     //_shaderProgram.enableAttributeArray(attrColors);
+
     // Lokalisiere bzw. definiere die Schnittstelle für die Transformationsmatrix
     // Die Matrix kann direkt übergeben werden, da setUniformValue für diesen Typ
     // überladen ist
@@ -267,7 +275,7 @@ void MyGLWidget::paintGL() {
     int unifPersMatrix = 0;
     matrix.setToIdentity();
     matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
-    matrix.translate(0.0, 0.0, - 10.0);
+    matrix.translate(-_XOffset, -_YOffset, -_ZOffset);
     _matrixStack.push(matrix);
 
     //Ab hier Stack abarbeiten
@@ -284,18 +292,29 @@ void MyGLWidget::paintGL() {
     //qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
     Q_ASSERT(_matrixStack.empty());
 
+    // Binde die Textur an den OpenGL-Kontext
+    _qTex->bind();
+
+    // Übergebe die Textur an die Uniform-Variable
+    // Die 0 steht dabei für die verwendete Unit (0=Standard)
+    _shaderProgram.setUniformValue("texture", 0);
+
     // Fülle die Attribute-Buffer mit den korrekten Daten
     int offset = 0;
-    int stride = 8 * sizeof(GLfloat);
+    size_t stride = 8 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
-    //offset += 4 * sizeof(GLfloat);
-    //_shaderProgram.setAttributeBuffer(attrColors, GL_FLOAT, offset, 4, stride);
+    offset += 4 * sizeof(GLfloat);
+    _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
 
     glDrawElements(GL_TRIANGLES, _iboLength, GL_UNSIGNED_INT, 0);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);
+    _shaderProgram.disableAttributeArray(attrTexCoords);
     //_shaderProgram.disableAttributeArray(attrColors);
+
+    // Löse die Textur aus dem OpenGL-Kontext
+    _qTex->release();
 
     _vbo.release();
     _ibo.release();
@@ -318,5 +337,9 @@ void MyGLWidget::autoRotateZ() {
 }
 
 void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
+    if(message.type() == QOpenGLDebugMessage::PerformanceType &&
+       message.severity() == QOpenGLDebugMessage::LowSeverity) {
+        return;
+    }
     qDebug() << message;
 }

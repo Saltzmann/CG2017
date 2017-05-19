@@ -15,6 +15,7 @@
 #include <stack>
 #include <QMatrix4x4>
 #include <modelloader.h>
+#include <QOpenGLTexture>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -38,14 +39,17 @@ private:
     //MatrixStack, damit überall erreichbar und nicht immmer "neu"
     std::stack<QMatrix4x4> _matrixStack;
 
+    //Modelle
     GLfloat* _vboData;
-    GLuint* _indexData;
-    // GLuint statt GLubyte, da viele Modelle groß sind
+    GLuint* _indexData; // GLuint statt GLubyte, da viele Modelle groß sind
     unsigned int _vboLength;
     unsigned int _iboLength;
 
+    //Texturen
+    QOpenGLTexture* _qTex;
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
+    void _initializeVBOs();
 public:
     MyGLWidget(QWidget *parent);
     void initializeGL();
@@ -54,8 +58,7 @@ public:
     void paintGL();
     void resizeGL(int width, int height);
     void keyPressEvent(QKeyEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void initializeVBOs();
+    void wheelEvent(QWheelEvent *event);    
 public slots:
     void receiveRotationZ(int degrees);
     void autoRotateZ();
