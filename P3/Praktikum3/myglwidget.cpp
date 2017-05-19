@@ -111,11 +111,17 @@ void MyGLWidget::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    glShadeModel(GL_SMOOTH); //DEPRECATED
+    //glShadeModel(GL_SMOOTH); //DEPRECATED //(ersetzt)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
+
+    // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
+    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
+    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330. frag");
+    // Kompiliere und linke die Shader-Programme
+    _shaderProgram.link();
 
     buildGeometry();
 
@@ -225,31 +231,65 @@ void MyGLWidget::paintGL() {
 
     // *** Rendern ***
     // Mache die Buffer im OpenGL-Kontext verfügbar
+    _shaderProgram.bind();
     _vbo.bind();
     _ibo.bind();
 
-    // Aktiviere die ClientStates zur Verwendung des Vertex- und Color-Arrays
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    // Setze den Vertex-Pointer (veraltet)
-    // Der erste Vertex liegt an Stelle 0 des VBO, hat 4 Komponenten,
-    // ist vom Typ GL_FLOAT, und 8*GL_Float Byte liegen zwischen jedem
-    // nachfolgenden Eckpunkt
-    glVertexPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+0);
-    // Setze den Color-Pointer (veraltet)
-    // Die erste Farbe findet sich beim 17. Byte im VBO, für den Rest s. oben
-    glColorPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+sizeof(GLfloat)*4);
-    // Zeichne die 6 Elemente (Indizes) als Dreiecke
-    // Die anderen Parameter verhalten sich wie oben
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0); //wieso hier 0?
-    //glDrawArrays(GL_TRIANGLES, 0, 6); // Alternative zu glDrawElements
-    // Deaktiviere die Client-States wieder
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
+    int attrVertices = 0;
+    attrVertices = shaderProgram.attributeLocation("vert");  // #version 130
+    // Lokalisiere bzw. definiere die Schnittstelle für die Farben
+    int attrColors = 1;
+    attrColors = shaderProgram.attributeLocation("color"); // #version 130
+    // Aktiviere die Verwendung der Attribute-Arrays
+    _shaderProgram.enableAttributeArray(attrVertices);
+    _shaderProgram.enableAttributeArray(attrColors);
+    // Lokalisiere bzw. definiere die Schnittstelle für die Transformationsmatrix
+    // Die Matrix kann direkt übergeben werden, da setUniformValue für diesen Typ
+    // überladen ist
+    int unifMatrix = 0;
+    unifMatrix = shaderProgram.uniformLocation("matrix"); // #version 130
+    _shaderProgram.setUniformValue(unifMatrix, matrix);
+    // Fülle die Attribute-Buffer mit den korrekten Daten
+    int offset = 0;
+    int stride = 8 * sizeof(GLfloat);
+    _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
+    offset += 4 * sizeof(GLfloat);
+    _shaderProgram.setAttributeBuffer(attrColors, GL_FLOAT, offset, 4, stride);
 
-    // Löse die Buffer aus dem OpenGL-Kontext
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0); //wieso hier 0?
+
+    // Deaktiviere die Verwendung der Attribute-Arrays
+    _shaderProgram.disableAttributeArray(attrVertices);
+    _shaderProgram.disableAttributeArray(attrColors);
+
     _vbo.release();
     _ibo.release();
+    // Löse das Shader-Programm
+    _shaderProgram.release();
+
+//    // Aktiviere die ClientStates zur Verwendung des Vertex- und Color-Arrays
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_COLOR_ARRAY);
+//    // Setze den Vertex-Pointer (veraltet)
+//    // Der erste Vertex liegt an Stelle 0 des VBO, hat 4 Komponenten,
+//    // ist vom Typ GL_FLOAT, und 8*GL_Float Byte liegen zwischen jedem
+//    // nachfolgenden Eckpunkt
+//    glVertexPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+0);
+//    // Setze den Color-Pointer (veraltet)
+//    // Die erste Farbe findet sich beim 17. Byte im VBO, für den Rest s. oben
+//    glColorPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+sizeof(GLfloat)*4);
+//    // Zeichne die 6 Elemente (Indizes) als Dreiecke
+//    // Die anderen Parameter verhalten sich wie oben
+//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0); //wieso hier 0?
+//    //glDrawArrays(GL_TRIANGLES, 0, 6); // Alternative zu glDrawElements
+//    // Deaktiviere die Client-States wieder
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//    glDisableClientState(GL_COLOR_ARRAY);
+
+//    // Löse die Buffer aus dem OpenGL-Kontext
+//    _vbo.release();
+//    _ibo.release();
 
     this->update();
     //this->repaint();
