@@ -12,6 +12,8 @@
 #include <qdebug.h>
 #include <QMetaEnum>
 #include <QOpenGLShaderProgram>
+#include <stack>
+#include <QMatrix4x4>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -31,7 +33,7 @@ private:
     GLfloat *_vertices;
     GLubyte *_indices;
     //Shader
-    QOpenGLShaderProgram shaderProgram;
+    QOpenGLShaderProgram _shaderProgram;
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
 public:

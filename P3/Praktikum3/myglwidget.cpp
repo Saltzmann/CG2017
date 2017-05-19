@@ -111,7 +111,7 @@ void MyGLWidget::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    //glShadeModel(GL_SMOOTH); //DEPRECATED //(ersetzt)
+    //(GL_SMOOTH); //(ersetzt, und veraltet)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -119,7 +119,7 @@ void MyGLWidget::initializeGL() {
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
-    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330. frag");
+    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
     // Kompiliere und linke die Shader-Programme
     _shaderProgram.link();
 
@@ -131,15 +131,21 @@ void MyGLWidget::initializeGL() {
 void MyGLWidget::resizeGL(int width, int height) {
     // Compute aspect ratio
     //height = (height == 0) ? 1 : height;
-    GLfloat aspect = (GLfloat)width / (GLfloat)height;
+    //GLfloat aspect = (GLfloat)width / (GLfloat)height;
 
     // Set viewport to cover the whole window
     glViewport(0, 0, width, height);
 
     // Set projection matrix to a perspective projection
-    glMatrixMode(GL_PROJECTION); //DEPRECATED
-    glLoadIdentity();  //DEPRECATED
-    glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);  //DEPRECATED
+    //glMatrixMode(GL_PROJECTION); //DEPRECATED
+    //glLoadIdentity();  //DEPRECATED
+    //glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);  //DEPRECATED
+
+    ///QMatrix4x4 proj_matrix;
+    //proj_matrix.setToIdentity();
+    //proj_matrix.frustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);
+
+    //hier weitere aufrufe?
 }
 
 void MyGLWidget::buildGeometry() {
@@ -221,13 +227,13 @@ void MyGLWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Apply model view transformations
-    glMatrixMode(GL_MODELVIEW);  //DEPRECATED
-    glLoadIdentity();  //DEPRECATED
+    //glMatrixMode(GL_MODELVIEW);  //DEPRECATED
+    //glLoadIdentity();  //DEPRECATED
     //Objekt 7 Einheiten in den Raum "weg" schieben
-    glTranslatef(-_XOffset, -_YOffset, -_ZOffset);  //DEPRECATED
+    //glTranslatef(-_XOffset, -_YOffset, -_ZOffset);  //DEPRECATED
 
     //Rotieren?
-    glRotatef(45.f + (float)_angle, 0.f, 0.f, 1.f); //DEPRECATED
+    //glRotatef(45.f + (float)_angle, 0.f, 0.f, 1.f); //DEPRECATED
 
     // *** Rendern ***
     // Mache die Buffer im OpenGL-Kontext verfügbar
@@ -237,19 +243,44 @@ void MyGLWidget::paintGL() {
 
     // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
     int attrVertices = 0;
-    attrVertices = shaderProgram.attributeLocation("vert");  // #version 130
+    //attrVertices = _shaderProgram.attributeLocation("vert");  // #version 130
     // Lokalisiere bzw. definiere die Schnittstelle für die Farben
     int attrColors = 1;
-    attrColors = shaderProgram.attributeLocation("color"); // #version 130
+    //attrColors = _shaderProgram.attributeLocation("color"); // #version 130
     // Aktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.enableAttributeArray(attrVertices);
     _shaderProgram.enableAttributeArray(attrColors);
     // Lokalisiere bzw. definiere die Schnittstelle für die Transformationsmatrix
     // Die Matrix kann direkt übergeben werden, da setUniformValue für diesen Typ
     // überladen ist
-    int unifMatrix = 0;
-    unifMatrix = shaderProgram.uniformLocation("matrix"); // #version 130
-    _shaderProgram.setUniformValue(unifMatrix, matrix);
+
+    std::stack<QMatrix4x4> matrixStack;
+
+
+    int unifModviewMatrix = 1;
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+    matrix.rotate(45.f + (float)_angle, 0.0, 0.0, 1.0);
+    matrixStack.push(matrix);
+
+    int unifPersMatrix = 0;
+    matrix.setToIdentity();
+    matrix.perspective(60.0, 4.0/3.0, 0.1, 100.0);
+    matrix.translate(0.0, 0.0, - 7.0);
+    matrixStack.push(matrix);
+
+    //Ab hier Stack abarbeiten
+    matrix = matrixStack.top();
+    matrixStack.pop();
+
+    _shaderProgram.setUniformValue(unifPersMatrix, matrix);
+
+    matrix = matrixStack.top(); // glPopMatrix
+    matrixStack.pop();
+
+    _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
+
+    qDebug() << "MatrixStack is now empty: " << matrixStack.empty();
     // Fülle die Attribute-Buffer mit den korrekten Daten
     int offset = 0;
     int stride = 8 * sizeof(GLfloat);
