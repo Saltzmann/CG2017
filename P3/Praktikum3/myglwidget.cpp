@@ -27,7 +27,7 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     connect(_myTimer, SIGNAL(timeout()),
             this, SLOT(autoRotateZ()));
     _myTimer->start(1000/60);
-    qDebug() << _myTimer->isActive();
+    //qDebug() << _myTimer->isActive();
 
     //Debug Output Versionsnummer etc.
     QSurfaceFormat fmt = this->format();
@@ -254,7 +254,7 @@ void MyGLWidget::paintGL() {
 
     _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
 
-    qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
+    //qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
     Q_ASSERT(_matrixStack.empty());
 
     // Fülle die Attribute-Buffer mit den korrekten Daten
@@ -277,7 +277,6 @@ void MyGLWidget::paintGL() {
 
 
     this->update();
-    //this->repaint();
 }
 
 void MyGLWidget::_SetAngle(int degrees) {
