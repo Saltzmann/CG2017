@@ -111,7 +111,6 @@ void MyGLWidget::initializeGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    //(GL_SMOOTH); //(ersetzt, und veraltet)
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
@@ -135,17 +134,6 @@ void MyGLWidget::resizeGL(int width, int height) {
 
     // Set viewport to cover the whole window
     glViewport(0, 0, width, height);
-
-    // Set projection matrix to a perspective projection
-    //glMatrixMode(GL_PROJECTION); //DEPRECATED
-    //glLoadIdentity();  //DEPRECATED
-    //glFrustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);  //DEPRECATED
-
-    ///QMatrix4x4 proj_matrix;
-    //proj_matrix.setToIdentity();
-    //proj_matrix.frustum(-0.05*aspect, 0.05*aspect, -0.05, 0.05, 0.1, 100.0);
-
-    //hier weitere aufrufe?
 }
 
 void MyGLWidget::buildGeometry() {
@@ -226,16 +214,6 @@ void MyGLWidget::paintGL() {
     // Clear buffer to set color and alpha
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Apply model view transformations
-    //glMatrixMode(GL_MODELVIEW);  //DEPRECATED
-    //glLoadIdentity();  //DEPRECATED
-    //Objekt 7 Einheiten in den Raum "weg" schieben
-    //glTranslatef(-_XOffset, -_YOffset, -_ZOffset);  //DEPRECATED
-
-    //Rotieren?
-    //glRotatef(45.f + (float)_angle, 0.f, 0.f, 1.f); //DEPRECATED
-
-    // *** Rendern ***
     // Mache die Buffer im OpenGL-Kontext verfügbar
     _shaderProgram.bind();
     _vbo.bind();
@@ -243,10 +221,8 @@ void MyGLWidget::paintGL() {
 
     // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
     int attrVertices = 0;
-    //attrVertices = _shaderProgram.attributeLocation("vert");  // #version 130
     // Lokalisiere bzw. definiere die Schnittstelle für die Farben
     int attrColors = 1;
-    //attrColors = _shaderProgram.attributeLocation("color"); // #version 130
     // Aktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.enableAttributeArray(attrVertices);
     _shaderProgram.enableAttributeArray(attrColors);
@@ -254,33 +230,33 @@ void MyGLWidget::paintGL() {
     // Die Matrix kann direkt übergeben werden, da setUniformValue für diesen Typ
     // überladen ist
 
-    std::stack<QMatrix4x4> matrixStack;
-
+    QMatrix4x4 matrix;
 
     int unifModviewMatrix = 1;
-    QMatrix4x4 matrix;
     matrix.setToIdentity();
     matrix.rotate(45.f + (float)_angle, 0.0, 0.0, 1.0);
-    matrixStack.push(matrix);
+    _matrixStack.push(matrix);
 
     int unifPersMatrix = 0;
     matrix.setToIdentity();
-    matrix.perspective(60.0, 4.0/3.0, 0.1, 100.0);
+    matrix.perspective(60.0, 16.0/9.0, 0.1, 100.0);
     matrix.translate(0.0, 0.0, - 7.0);
-    matrixStack.push(matrix);
+    _matrixStack.push(matrix);
 
     //Ab hier Stack abarbeiten
-    matrix = matrixStack.top();
-    matrixStack.pop();
+    matrix = _matrixStack.top();
+    _matrixStack.pop();
 
     _shaderProgram.setUniformValue(unifPersMatrix, matrix);
 
-    matrix = matrixStack.top(); // glPopMatrix
-    matrixStack.pop();
+    matrix = _matrixStack.top(); // glPopMatrix
+    _matrixStack.pop();
 
     _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
 
-    qDebug() << "MatrixStack is now empty: " << matrixStack.empty();
+    qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
+    Q_ASSERT(_matrixStack.empty());
+
     // Fülle die Attribute-Buffer mit den korrekten Daten
     int offset = 0;
     int stride = 8 * sizeof(GLfloat);
@@ -299,28 +275,6 @@ void MyGLWidget::paintGL() {
     // Löse das Shader-Programm
     _shaderProgram.release();
 
-//    // Aktiviere die ClientStates zur Verwendung des Vertex- und Color-Arrays
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
-//    // Setze den Vertex-Pointer (veraltet)
-//    // Der erste Vertex liegt an Stelle 0 des VBO, hat 4 Komponenten,
-//    // ist vom Typ GL_FLOAT, und 8*GL_Float Byte liegen zwischen jedem
-//    // nachfolgenden Eckpunkt
-//    glVertexPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+0);
-//    // Setze den Color-Pointer (veraltet)
-//    // Die erste Farbe findet sich beim 17. Byte im VBO, für den Rest s. oben
-//    glColorPointer(4, GL_FLOAT, sizeof(GLfloat) * 8, (char*) NULL+sizeof(GLfloat)*4);
-//    // Zeichne die 6 Elemente (Indizes) als Dreiecke
-//    // Die anderen Parameter verhalten sich wie oben
-//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0); //wieso hier 0?
-//    //glDrawArrays(GL_TRIANGLES, 0, 6); // Alternative zu glDrawElements
-//    // Deaktiviere die Client-States wieder
-//    glDisableClientState(GL_VERTEX_ARRAY);
-//    glDisableClientState(GL_COLOR_ARRAY);
-
-//    // Löse die Buffer aus dem OpenGL-Kontext
-//    _vbo.release();
-//    _ibo.release();
 
     this->update();
     //this->repaint();

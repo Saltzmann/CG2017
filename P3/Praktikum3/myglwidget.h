@@ -34,6 +34,8 @@ private:
     GLubyte *_indices;
     //Shader
     QOpenGLShaderProgram _shaderProgram;
+    //MatrixStack, damit überall erreichbar und nicht immmer "neu"
+    std::stack<QMatrix4x4> _matrixStack;
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
 public:
