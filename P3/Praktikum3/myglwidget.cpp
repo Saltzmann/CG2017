@@ -115,7 +115,7 @@ void MyGLWidget::initializeGL() {
 
     glEnable(GL_TEXTURE_2D);
     // Schlagen Sie mirrored() nach - warum und wie wird die Textur gespiegelt?
-    _qTex = new QOpenGLTexture(QImage(":/maybetexture.jpg").mirrored());
+    _qTex = new QOpenGLTexture(QImage(":/earthmap1k.jpg").mirrored());
     // Schlagen Sie die Filter in der Dokumentation nach, wofür ist Mip-Mapping gut?
     _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
