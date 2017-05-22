@@ -7,6 +7,7 @@
 #define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
 #define INITIAL_CAMERA_OFFSET 50.0f
+#define TICKRATE 1000/60
 
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
@@ -19,12 +20,6 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     _ZOffset = INITIAL_CAMERA_OFFSET;
 
     setFocusPolicy(Qt::StrongFocus);
-    //QTimer Initialisierung
-    //_myTimer = new QTimer(this);
-    //connect(_myTimer, SIGNAL(timeout()),
-//            this, SLOT(autoRotateZ()));
-    //_myTimer->start(1000/30);
-    //qDebug() << _myTimer->isActive();
 
     //Debug Output Versionsnummer etc.
     QSurfaceFormat fmt = this->format();
@@ -67,17 +62,17 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
         _XOffset += 0.1f;
     }
     else if(event->key() == (int)Qt::Key_Q) {
-        _SetAngle(--_angle);
+        //_SetAngle(--_angle);
     }
     else if(event->key() == (int)Qt::Key_E) {
-        _SetAngle(++_angle);
+        //_SetAngle(++_angle);
     }
     else if(event->key() == Qt::Key_Space) {
         if(_myTimer->isActive()) {
             _myTimer->stop();
         }
         else {
-            _myTimer->start(1000/60);
+            _myTimer->start(TICKRATE);
         }
     }
     else {
@@ -88,12 +83,8 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     //Wenn wir die Sliderwerte über die Tastatur verändern passiert nichts mehr...
 }
 
-void MyGLWidget::receiveRotationZ(int degrees) {
-    //qDebug() << qintptr(degrees);
-    _SetAngle(degrees);
-}
-
 void MyGLWidget::initializeGL() {
+
     initializeOpenGLFunctions();
     //DebugLogger initialisieren (könnte vermutlich auch in den Konstruktor)
     debugLogger = new QOpenGLDebugLogger(this); // this is a member variable
@@ -122,14 +113,24 @@ void MyGLWidget::initializeGL() {
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_qTex->textureId() != 0);
 
+    CelestialBody* gay = new CelestialBody(12756.3,
+                             23.44,
+                             1.f,
+                             365.f,
+                             20,
+                             true,
+                             "earthmap1k.jpg");
+
     //test
     test = new CelestialBody(12756.3,
                              23.44,
                              1.f,
                              365.f,
-                             5,
+                             50,
                              true,
-                             "earthmap1k.jpg");
+                             "earthmap1k.jpg",
+                             gay);
+
     _myTimer = new QTimer(this);
     connect(_myTimer, SIGNAL(timeout()),
             test, SLOT(update()));
@@ -142,9 +143,9 @@ void MyGLWidget::initializeGL() {
     // Kompiliere und linke die Shader-Programme
     _shaderProgram.link();
 
-    //buildGeometry();
+    _initializeCelestialBodies();
 
-    fillBuffers();
+    _fillBuffers();
 }
 
 void MyGLWidget::resizeGL(int width, int height) {
@@ -154,64 +155,6 @@ void MyGLWidget::resizeGL(int width, int height) {
 
     // Set viewport to cover the whole window
     glViewport(0, 0, width, height);
-}
-
-void MyGLWidget::buildGeometry() {
-    // Eckpunkte
-    // (6 Rechteck mit 4 Eckpunkten mit je 4 Koordinaten und 4 Farbkanälen)
-    _vertices = new GLfloat[4*(4+4)];
-    // Verwendete Elemente (6 Rechtecke, die durch 2 Dreiecke mit je 3 Vertices dargestellt werden)
-    _indices = new GLubyte[2*3]; // für große Meshes lieber GLuint
-
-    // 1. Vertex, Position
-    _vertices[0] = 1.0f;
-    _vertices[1] = -1.0f;
-    _vertices[2] = 0.0f;
-    _vertices[3] = 1.0f; // 4. Komponente ist immer 1
-    // 1. Vertex, Farbe
-    _vertices[4] = 1.0f;
-    _vertices[5] = 0.0f;
-    _vertices[6] = 0.0f;
-    _vertices[7] = 1.0f; // 4. Komponente ist immer 1
-    // 2. Vertex, Position
-    _vertices[8] = 1.0f;
-    _vertices[9] = 1.0f;
-    _vertices[10] = 0.0f;
-    _vertices[11] = 1.0f; // 4. Komponente ist immer 1
-    // 2. Vertex, Farbe
-    _vertices[12] = 0.0f;
-    _vertices[13] = 1.0f;
-    _vertices[14] = 0.0f;
-    _vertices[15] = 1.0f; // 4. Komponente ist immer 1
-    // 3. Vertex, Position
-    _vertices[16] = -1.0f;
-    _vertices[17] = 1.0f;
-    _vertices[18] = 0.0f;
-    _vertices[19] = 1.0f; // 4. Komponente ist immer 1
-    // 3. Vertex, Farbe
-    _vertices[20] = 1.0f;
-    _vertices[21] = 1.0f;
-    _vertices[22] = 1.0f;
-    _vertices[23] = 1.0f; // 4. Komponente ist immer 1
-    // 4. Vertex, Position
-    _vertices[24] = -1.0f;
-    _vertices[25] = -1.0f;
-    _vertices[26] = 0.0f;
-    _vertices[27] = 1.0f; // 4. Komponente ist immer 1
-    // 4. Vertex, Farbe
-    _vertices[28] = 0.0f;
-    _vertices[29] = 0.0f;
-    _vertices[30] = 1.0f;
-    _vertices[31] = 1.0f; // 4. Komponente ist immer 1
-
-    // Initialisiere Elemente (für GL_TRIANGLES)
-    _indices[0] = 0;
-    _indices[1] = 1;
-    _indices[2] = 2;
-
-    _indices[3] = 2;
-    _indices[4] = 3;
-    _indices[5] = 0;
 }
 
 void MyGLWidget::_initializeVBOs() {
@@ -241,7 +184,13 @@ void MyGLWidget::_initializeVBOs() {
     _ibo.allocate(_indexData, sizeof(GLuint) * _iboLength);
 }
 
-void MyGLWidget::fillBuffers() {
+void MyGLWidget::_initializeCelestialBodies() {
+    //todo
+    //planeten und monde erstellen und verknüpfen
+    //timer nicht vergessen
+}
+
+void MyGLWidget::_fillBuffers() {
     _vbo.create();
     _ibo.create();
 
@@ -258,6 +207,18 @@ void MyGLWidget::fillBuffers() {
 }
 
 void MyGLWidget::paintGL() {
+
+    //stuff
+
+    //skybox?
+
+    //sun.RenderWithChildren(&_shaderProgram,
+    //                       _matrixStack,
+    //                       _vboData,
+    //                       _indexData);
+
+    //vbo, ibo und shader sollten gebunden bleiben können
+
     // Clear buffer to set color and alpha
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -283,7 +244,7 @@ void MyGLWidget::paintGL() {
 
     int unifModviewMatrix = 1;
     matrix.setToIdentity();
-    matrix = test->getTransformationMatrix();
+    matrix = test->getOrbitalTransformationMatrix();
     _matrixStack.push(matrix);
 
     int unifPersMatrix = 0;
@@ -299,6 +260,7 @@ void MyGLWidget::paintGL() {
     _shaderProgram.setUniformValue(unifPersMatrix, matrix);
 
     matrix = _matrixStack.top(); // glPopMatrix
+    matrix *= test->getRotationTransformationMatrix();
     _matrixStack.pop();
 
     _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
@@ -339,20 +301,10 @@ void MyGLWidget::paintGL() {
     this->update();
 }
 
-void MyGLWidget::_SetAngle(int degrees) {
-    if(degrees > 359) _angle = 0;
-    else if(degrees < 0) _angle = 359;
-    else _angle = degrees;
-}
-
-void MyGLWidget::autoRotateZ() {
-    _angle++;
-    this->update();
-}
-
 void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
     if(message.type() == QOpenGLDebugMessage::PerformanceType &&
        message.severity() == QOpenGLDebugMessage::LowSeverity) {
+        //anti spam meassure ... demnächst gerne gefixed
         return;
     }
     qDebug() << message;

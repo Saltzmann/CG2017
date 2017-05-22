@@ -2,15 +2,13 @@
 
 CelestialBody::CelestialBody(double diameter, float axialTilt,
                              float rotationPeriod, float orbitalPeriod,
-                             double orbitalRadius, bool CCWRotation, QString textureFileName,
-                             CelestialBody* inOrbitOf) {
+                             double orbitalRadius, bool CCWRotation, QString textureFileName) {
     //Simple start values
     this->_diameter = diameter;
     this->_axialTilt = axialTilt;
     this->_rotationPeriod = rotationPeriod;
     this->_orbitalPeriod = orbitalPeriod;
     this->_orbitalRadius = orbitalRadius;
-    this->_inOrbitOf = inOrbitOf;
     this->_CCWRotation = CCWRotation;
 
     //calculated values
@@ -25,7 +23,12 @@ CelestialBody::CelestialBody(double diameter, float axialTilt,
         _rotationalAnglePerTick *= -1;
     }
 
-    this->_orbitalAnglePerTick = ((360.f / _orbitalPeriod) * 365.25) * SIMYEARS_PER_TICK;
+    if(_inOrbitOf) {
+        this->_orbitalAnglePerTick = ((360.f / _orbitalPeriod) * 365.25) * SIMYEARS_PER_TICK;
+    }
+    else {
+        this->_orbitalAnglePerTick = 0.0;
+    }
 
     qDebug() << "_rotationalAnglePerTick : " << _rotationalAnglePerTick;
     qDebug() << "_orbitalAnglePerTick : " << _orbitalAnglePerTick;
@@ -36,27 +39,23 @@ CelestialBody::CelestialBody(double diameter, float axialTilt,
     _currentRotationalAngle = 0.f;
 }
 
-
-double CelestialBody::getDiameter() {
-    return _diameter;
+//PUBLIC METHODS
+void CelestialBody::addOrbitingCelestialBody(CelestialBody child) {
+    Orbiting.push_back(child);
 }
 
-float CelestialBody::getAxialTilt() {
-    return _axialTilt;
+bool CelestialBody::hasCelestialBodiesOrbiting() {
+    return (!Orbiting.empty());
 }
 
-float CelestialBody::getRotationPeriod() {
-    return _rotationPeriod;
+void CelestialBody::RenderWithChildren(QOpenGLShaderProgram *shader,
+                                       std::stack<QMatrix4x4> *matrixStack,
+                                       GLfloat *vboData,
+                                       GLuint *indexData) {
+    //TODO aus paintGL() hier hin ausgelagert, außerdem Aufruf der Funktion bei den Kindern
 }
 
-double CelestialBody::getOrbitalPeriod() {
-    return _orbitalPeriod;
-}
-
-double CelestialBody::getOrbitalRadius() {
-    return _orbitalRadius;
-}
-
+//PRIVATE METHODS
 void CelestialBody::_setTexture(QString filename) {
     _qTex = new QOpenGLTexture(QImage(":/" + filename).mirrored());
     _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
@@ -67,18 +66,6 @@ void CelestialBody::_setTexture(QString filename) {
 
 double CelestialBody::_getScale() {
     return (_diameter / 4879.4); //size of mercury the smallest planet
-}
-
-bool CelestialBody::isInOrbitOf() {
-    return(_inOrbitOf != nullptr);
-}
-
-float CelestialBody::getRotationalAnglePerTick() {
-    return _rotationalAnglePerTick;
-}
-
-float CelestialBody::getOrbitalAnglePerTick() {
-    return _orbitalAnglePerTick;
 }
 
 void CelestialBody::update() {
@@ -103,37 +90,43 @@ void CelestialBody::update() {
     //qDebug() << "currentOrbAngle : " << _currentOrbitalAngle;
 }
 
-QMatrix4x4 CelestialBody::getTransformationMatrix() {
-    QMatrix4x4 matrix;
+QMatrix4x4 CelestialBody::_getOrbitalTransformationMatrix() {
+    QMatrix4x4 matrix1;
 
     //andersherum...sprich lies von unten nach oben
 
-    matrix.setToIdentity();
+    matrix1.setToIdentity();
 
+    //betrifft ORBIT
     //um Sonne/Planet rotieren
-    matrix.rotate(_currentOrbitalAngle, 0.f, 1.f, 0.f);
+    matrix1.rotate(_currentOrbitalAngle, 0.f, 1.f, 0.f);
 
     //in den Orbit translatieren
-    matrix.translate(_orbitalRadius, 0.f, 0.f);
+    matrix1.translate(_orbitalRadius, 0.f, 0.f);
 
+    return matrix1;
+}
+
+QMatrix4x4 CelestialBody::_getRotationTransformationMatrix() {
+    QMatrix4x4 matrix2;
+    matrix2.setToIdentity();
+
+    //betrifft EIGENROTATION
     //orbitale rotation dreht auch Planet, da dies nicht gewollt ist vorher gegenrotieren
-    matrix.rotate(-_currentOrbitalAngle, 0.f, 1.f, 0.f);
+    matrix2.rotate(-_currentOrbitalAngle, 0.f, 1.f, 0.f);
 
     //wieder um achse neigen
-    matrix.rotate(_axialTilt, 0.f, 0.f, 1.f);
+    matrix2.rotate(_axialTilt, 0.f, 0.f, 1.f);
 
     //um rotationsachse rotieren
-    matrix.rotate(_currentRotationalAngle, 0.f, 1.f, 0.f);
+    matrix2.rotate(_currentRotationalAngle, 0.f, 1.f, 0.f);
 
     //textur ist bereits geneigt also zurückneigen
-    matrix.rotate(-_axialTilt, 0.f, 0.f, 1.f);
+    matrix2.rotate(-_axialTilt, 0.f, 0.f, 1.f);
 
-    matrix.scale(_getScale());
+    matrix2.scale(_getScale());
     //qDebug() << "Wird skaliert um Faktor : " << _getScale();
 
-    return matrix;
+    return matrix2;
 }
 
-QOpenGLTexture* CelestialBody::getTexture() {
-    return _qTex;
-}

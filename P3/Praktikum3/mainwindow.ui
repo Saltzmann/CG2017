@@ -98,40 +98,37 @@
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <layout class="QHBoxLayout" name="hblRotationZ">
-           <item>
-            <widget class="QSlider" name="sldRotationZ">
-             <property name="maximum">
-              <number>359</number>
-             </property>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="lblRotationZ">
-             <property name="text">
-              <string>Drehung</string>
-             </property>
-             <property name="margin">
-              <number>10</number>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="sbxRotationZ">
-             <property name="readOnly">
-              <bool>true</bool>
-             </property>
-             <property name="maximum">
-              <number>359</number>
-             </property>
-            </widget>
-           </item>
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <property name="rightMargin">
+            <number>1300</number>
+           </property>
            <item>
             <widget class="QLabel" name="lblScaleZ">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
              <property name="text">
-              <string>Zoom</string>
+              <string>Speed</string>
              </property>
              <property name="margin">
               <number>10</number>
@@ -140,11 +137,44 @@
            </item>
            <item>
             <widget class="QSpinBox" name="sbxScaleZ">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="wrapping">
+              <bool>false</bool>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
              <property name="readOnly">
               <bool>true</bool>
              </property>
              <property name="suffix">
               <string/>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
              </property>
             </widget>
            </item>
@@ -171,38 +201,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>sldRotationZ</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>sbxRotationZ</receiver>
-   <slot>setValue(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>361</x>
-     <y>546</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>495</x>
-     <y>550</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sldRotationZ</sender>
-   <signal>sliderMoved(int)</signal>
-   <receiver>myglwid</receiver>
-   <slot>receiveRotationZ(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>225</x>
-     <y>544</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>284</x>
-     <y>287</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

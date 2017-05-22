@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    QObject::connect(ui->myglwid, SIGNAL(sendZOffset(int)),
+    QObject::connect(ui->myglwid, SIGNAL(sendSpeedFactor(int)),
                      ui->sbxScaleZ, SLOT(setValue(int)));
 }
 

@@ -8,6 +8,8 @@
 #include <QOpenGLTexture>
 #include <QVector>
 #include <QMatrix4x4>
+#include <QOpenGLShaderProgram>
+#include <stack>
 
 
 class CelestialBody : public QObject
@@ -23,7 +25,7 @@ private:
     double _orbitalRadius;
     bool _CCWRotation;
     //general
-    CelestialBody* _inOrbitOf;
+    QVector<CelestialBody> Orbiting;
     QOpenGLTexture* _qTex;
     //fixed calculated values (for performance)
     float _rotationalAnglePerTick;
@@ -35,26 +37,19 @@ private:
     //methods
     double _getScale();
     void _setTexture(QString filename);
+    QMatrix4x4 _getOrbitalTransformationMatrix();
+    QMatrix4x4 _getRotationTransformationMatrix();
 public:
     CelestialBody(double diameter, float axialTilt,
            float rotationPeriod, float orbitalPeriod,
            double orbitalRadius, bool CCWRotation,
-           QString textureFileName,
-           CelestialBody* inOrbitOf = nullptr); //if moon
-    //getters for initial attributes 'cause y not
-    double getDiameter();
-    float getAxialTilt();
-    float getRotationPeriod();
-    double getOrbitalPeriod();
-    double getOrbitalRadius();
-    //getter for calculated attributes 'cause y not
-    float getRotationalAnglePerTick();
-    float getOrbitalAnglePerTick();
-
-    QOpenGLTexture* getTexture();
-
-    QMatrix4x4 getTransformationMatrix();
-    bool isInOrbitOf();
+           QString textureFileName);
+    void addOrbitingCelestialBody(CelestialBody child);
+    bool hasCelestialBodiesOrbiting();
+    void RenderWithChildren(QOpenGLShaderProgram* shader,
+                std::stack<QMatrix4x4> matrixStack,
+                GLfloat* vboData,
+                GLuint* indexData);
 public slots:
    void update();
 };

@@ -13,6 +13,7 @@
 #include <QMetaEnum>
 #include <QOpenGLShaderProgram>
 #include <stack>
+#include <vector>
 #include <QMatrix4x4>
 #include <modelloader.h>
 #include <QOpenGLTexture>
@@ -29,12 +30,13 @@ private:
     void _SetAngle(int degrees);
     QTimer* _myTimer;
 
+    //Planet Stuff
+    CelestialBody sun;
+
     //Praktikum 3
     QOpenGLBuffer _vbo;
     QOpenGLBuffer _ibo;
-    //Arrays für Buffer
-    GLfloat *_vertices;
-    GLubyte *_indices;
+
     //Shader
     QOpenGLShaderProgram _shaderProgram;
     //MatrixStack, damit überall erreichbar und nicht immmer "neu"
@@ -45,30 +47,24 @@ private:
     GLuint* _indexData; // GLuint statt GLubyte, da viele Modelle groß sind
     unsigned int _vboLength;
     unsigned int _iboLength;
-    unsigned int _modelStride = 12;
 
-    CelestialBody* test;
-
-    //Texturen
-    QOpenGLTexture* _qTex;
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
     void _initializeVBOs();
+    void _initializeCelestialBodies();
+    void _fillBuffers();
 public:
     MyGLWidget(QWidget *parent);
     void initializeGL();
-    void buildGeometry();
-    void fillBuffers();
     void paintGL();
     void resizeGL(int width, int height);
     void keyPressEvent(QKeyEvent *event);
     void wheelEvent(QWheelEvent *event);    
 public slots:
-    void receiveRotationZ(int degrees);
-    void autoRotateZ();
     void onMessageLogged(QOpenGLDebugMessage message);
 signals:
     void sendZOffset(int value);
+    //rename to sendSpeedFactor(int value);
 };
 
 #endif // MYGLWIDGET_H
