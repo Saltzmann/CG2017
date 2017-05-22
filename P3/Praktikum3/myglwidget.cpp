@@ -6,7 +6,7 @@
 #define WINDOW_WIDTH 480
 #define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
-#define INITIAL_CAMERA_OFFSET 10.0f
+#define INITIAL_CAMERA_OFFSET 50.0f
 
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
@@ -20,10 +20,10 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
 
     setFocusPolicy(Qt::StrongFocus);
     //QTimer Initialisierung
-    _myTimer = new QTimer(this);
-    connect(_myTimer, SIGNAL(timeout()),
-            this, SLOT(autoRotateZ()));
-    _myTimer->start(1000/60);
+    //_myTimer = new QTimer(this);
+    //connect(_myTimer, SIGNAL(timeout()),
+//            this, SLOT(autoRotateZ()));
+    //_myTimer->start(1000/30);
     //qDebug() << _myTimer->isActive();
 
     //Debug Output Versionsnummer etc.
@@ -121,6 +121,20 @@ void MyGLWidget::initializeGL() {
     _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_qTex->textureId() != 0);
+
+    //test
+    test = new CelestialBody(12756.3,
+                             23.44,
+                             1.f,
+                             365.f,
+                             5,
+                             true,
+                             "earthmap1k.jpg");
+    _myTimer = new QTimer(this);
+    connect(_myTimer, SIGNAL(timeout()),
+            test, SLOT(update()));
+    //Timer ist mehr Performance einstellung als visuell
+    _myTimer->start(1000/60);
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
@@ -269,7 +283,7 @@ void MyGLWidget::paintGL() {
 
     int unifModviewMatrix = 1;
     matrix.setToIdentity();
-    matrix.rotate(45.f + (float)_angle, 0.0, 1.0, 0.0);
+    matrix = test->getTransformationMatrix();
     _matrixStack.push(matrix);
 
     int unifPersMatrix = 0;

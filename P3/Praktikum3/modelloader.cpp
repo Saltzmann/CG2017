@@ -92,7 +92,7 @@ void ModelLoader::genVBO(GLfloat* vbo, unsigned int meshId, bool normals, bool t
     // copy array and add 4th component
     int unsigned n;
     for (unsigned int i = 0; i < scene->mMeshes[meshId]->mNumVertices; ++i) {
-        std::cout << "read vertex number " << i << std::endl;
+        //std::cout << "read vertex number " << i << std::endl;
         n = 0;
         vbo[i*stride+n++] = scene->mMeshes[meshId]->mVertices[i].x;
         vbo[i*stride+n++] = scene->mMeshes[meshId]->mVertices[i].y;

@@ -1,13 +1,18 @@
 #ifndef CELESTIALBODY_H
 #define CELESTIALBODY_H
 
+#define TICKS_PER_SECOND 60
+#define SIMYEARS_PER_TICK 0.01/(double)TICKS_PER_SECOND
+
+
 #include <QOpenGLTexture>
 #include <QVector>
 #include <QMatrix4x4>
 
 
-class CelestialBody
+class CelestialBody : public QObject
 {
+    Q_OBJECT
 private:
     //Atrributes
     //initial
@@ -21,8 +26,8 @@ private:
     CelestialBody* _inOrbitOf;
     QOpenGLTexture* _qTex;
     //fixed calculated values (for performance)
-    float _rotationalAnglePerDay;
-    float _orbitalAnglePerDay;
+    float _rotationalAnglePerTick;
+    float _orbitalAnglePerTick;
     //current location & rotation
     float _currentOrbitalAngle;
     float _currentRotationalAngle;
@@ -43,14 +48,15 @@ public:
     double getOrbitalPeriod();
     double getOrbitalRadius();
     //getter for calculated attributes 'cause y not
-    float getRotationalAnglePerDay();
-    float getOrbitalAnglePerDay();
+    float getRotationalAnglePerTick();
+    float getOrbitalAnglePerTick();
 
-    void update();
     QOpenGLTexture* getTexture();
 
     QMatrix4x4 getTransformationMatrix();
     bool isInOrbitOf();
+public slots:
+   void update();
 };
 
 #endif // CELESTIALBODY_H

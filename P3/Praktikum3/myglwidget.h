@@ -16,6 +16,7 @@
 #include <QMatrix4x4>
 #include <modelloader.h>
 #include <QOpenGLTexture>
+#include <celestialbody.h>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -45,6 +46,8 @@ private:
     unsigned int _vboLength;
     unsigned int _iboLength;
     unsigned int _modelStride = 12;
+
+    CelestialBody* test;
 
     //Texturen
     QOpenGLTexture* _qTex;
