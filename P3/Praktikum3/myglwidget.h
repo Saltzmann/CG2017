@@ -27,7 +27,8 @@ private:
     float _XOffset;
     float _YOffset;
     float _ZOffset;
-    float _viewingAngle;
+    float _viewingAngleX;
+    float _viewingAngleY;
 
     QTimer* _myTimer;
 

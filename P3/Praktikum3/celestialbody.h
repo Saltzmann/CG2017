@@ -2,7 +2,7 @@
 #define CELESTIALBODY_H
 
 #define TICKS_PER_SECOND 60
-#define SIMYEARS_PER_TICK 0.001/(double)TICKS_PER_SECOND
+#define SIMYEARS_PER_TICK 0.05/(double)TICKS_PER_SECOND
 #define SCALE_FACTOR 1/4879.4
 
 
@@ -54,7 +54,8 @@ public:
                             std::stack<QMatrix4x4>* matrixStack,
                             unsigned int iboLength,
                             QVector3D viewingOffsets,
-                            float viewingAngle);
+                            float viewingAngleX,
+                            float viewingAngleY);
 public slots:
    void update();
 };

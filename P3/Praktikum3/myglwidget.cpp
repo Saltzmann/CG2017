@@ -6,19 +6,21 @@
 #define WINDOW_WIDTH 480
 #define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
-#define INITIAL_CAMERA_OFFSET 5000.0f
-#define TICKRATE 1000/60
+#define INITIAL_CAMERA_OFFSET 500.0f
+#define INITIAL_SPEED_FACTOR 10
+#define TICKRATE 1000/UPDATE_RATE
 
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
                                           _vbo(QOpenGLBuffer::VertexBuffer),
                                           _ibo(QOpenGLBuffer::IndexBuffer)
                                         {
-    _speedFactor = 1.0;
+    _speedFactor = INITIAL_SPEED_FACTOR;
     _XOffset = 0.f;
     _YOffset = 0.f;
     _ZOffset = INITIAL_CAMERA_OFFSET;
-    _viewingAngle = 0.f;
+    _viewingAngleX = 0.f;
+    _viewingAngleY = 0.f;
 
     setFocusPolicy(Qt::StrongFocus);
 
@@ -37,38 +39,68 @@ void MyGLWidget::wheelEvent(QWheelEvent *event) {
 
     if (numDegrees != 0) {
         int numSteps = numDegrees / 15;
-        _speedFactor += (float)numSteps * 0.01f * 1.5;
+        _speedFactor += (float)numSteps * 0.1;
         emit sendSpeedFactor(_speedFactor);
-        //qDebug() << _ZOffset;
+        //qDebug() << "Speedfactor:" << _speedFactor;
     }
     event->accept();
     this->update();
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
-    //Oben
-    if (event->key() == (int)Qt::Key_W || event->key() == (int)Qt::Key_Up) {
-        _YOffset += 0.1f;
+    //nach oben
+    if (event->key() == (int)Qt::Key_W) {
+        _YOffset += 1.f * _speedFactor;
     }
-    //Unten
-    else if(event->key() == (int)Qt::Key_S || event->key() == (int)Qt::Key_Down) {
-        _YOffset -= 0.1f;
+    //nach unten
+    else if(event->key() == (int)Qt::Key_S) {
+        _YOffset -= 1.f * _speedFactor;
     }
-    //Links
-    else if(event->key() == (int)Qt::Key_A || event->key() == (int)Qt::Key_Left) {
-        _XOffset  -= 0.1f;
+    //Links (strafe)
+    else if(event->key() == (int)Qt::Key_A) {
+        _XOffset  -= 1.f * _speedFactor;
     }
-    //Rechts
-    else if(event->key() == (int)Qt::Key_D || event->key() == (int)Qt::Key_Right) {
-        _XOffset += 0.1f;
+    //Rechts (strafe)
+    else if(event->key() == (int)Qt::Key_D) {
+        _XOffset += 1.f * _speedFactor;
     }
+    //nach vorne
+    else if (event->key() == (int)Qt::Key_E) {
+        _ZOffset -= 1.f * _speedFactor;
+    }
+    //nach hinten
     else if(event->key() == (int)Qt::Key_Q) {
-        //_SetAngle(--_angle);
+        _ZOffset += 1.f * _speedFactor;
     }
-    else if(event->key() == (int)Qt::Key_E) {
-        //_SetAngle(++_angle);
+    //Links (turn)
+    else if(event->key() == (int)Qt::Key_Left) {
+        _viewingAngleX -= 2.f;
     }
-    else if(event->key() == Qt::Key_Space) {
+    //Rechts (turn)
+    else if(event->key() == (int)Qt::Key_Right) {
+        _viewingAngleX += 2.f;
+    }
+    //Hoch (turn)
+    else if(event->key() == (int)Qt::Key_Up) {
+        _viewingAngleY -= 2.f;
+    }
+    //Runter (turn)
+    else if(event->key() == (int)Qt::Key_Down) {
+        _viewingAngleY += 2.f;
+    }
+    else if(event->key() == (int)Qt::Key_R) { //hard reset
+        _XOffset = 0;
+        _YOffset = 0;
+        _ZOffset = INITIAL_CAMERA_OFFSET;
+        _speedFactor = INITIAL_SPEED_FACTOR;
+        _viewingAngleX = 0;
+        _viewingAngleY = 0;
+    }
+    else if(event->key() == (int)Qt::Key_F) { //soft reset
+        _viewingAngleX = 0;
+        _viewingAngleY = 0;
+    }
+    else if(event->key() == Qt::Key_H) {
         if(_myTimer->isActive()) {
             _myTimer->stop();
         }
@@ -104,7 +136,8 @@ void MyGLWidget::initializeGL() {
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz    
+    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß
 
     _myTimer = new QTimer(this);    
 
@@ -174,13 +207,14 @@ void MyGLWidget::_initializeCelestialBodies() {
             sun, SLOT(update()));
 
     planet = new CelestialBody("Mercury",
-                                              4879.4,
-                                              0.01,
-                                              59,
-                                              88,
-                                              800000,
-                                              true,
-                                              "mercurymap.jpg");
+                               4879.4,
+                               0.01,
+                               59,
+                               88,
+                               800000,
+                               true,
+                               "mercurymap.jpg");
+
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
@@ -219,7 +253,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                              6.68,
                              27,
                              27,
-                             150000,
+                             12000,
                              true,
                              "moonmap1k.jpg");
 
@@ -243,11 +277,11 @@ void MyGLWidget::_initializeCelestialBodies() {
     sun->addOrbitingCelestialBody(planet);
 
     moon = new CelestialBody("Phobos",
-                              20,
+                              1000, //faktor 50 zu viel aber sonst sieht man nix
                               0,
                               0.32,
                               0.32,
-                              50000,
+                              5000,
                               true,
                               "phobosbump.jpg");
 
@@ -257,11 +291,11 @@ void MyGLWidget::_initializeCelestialBodies() {
     planet->addOrbitingCelestialBody(moon);
 
     moon = new CelestialBody("Deimos",
-                              12,
+                              600, //faktor 50 zu viel aber sonst sieht man nix
                               0,
                               1.26,
                               1.26,
-                              75000,
+                              6000,
                               true,
                               "deimosbump.jpg");
 
@@ -364,15 +398,74 @@ void MyGLWidget::paintGL() {
 
     Q_ASSERT(_matrixStack.empty());
 
-    //skybox?
+    //skybox
+    glFrontFace(GL_CW);
+    //glCullFace(GL_FRONT);
+    QOpenGLTexture* _qTex = new QOpenGLTexture(QImage(":/milkyway.jpg").mirrored());
+    _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
+    _qTex->setWrapMode(QOpenGLTexture::MirroredRepeat);
+    Q_ASSERT(_qTex->textureId() != 0);
 
+    QMatrix4x4 matrix;
+    int unifModviewMatrix = 1;
+    matrix.setToIdentity();
+    matrix.rotate(90, 0.f, 0.f, 1.f);
+    matrix.scale(25000000 * SCALE_FACTOR);
+    _matrixStack.push(matrix);
+
+    int unifPersMatrix = 0;
+    matrix.setToIdentity();
+    matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
+    matrix.rotate(_viewingAngleX, 0.f, 1.f, 0.f);
+    matrix.rotate(_viewingAngleY, 1.f, 0.f, 0.f);
+    matrix.translate(-_XOffset, -_YOffset, -_ZOffset);
+    _matrixStack.push(matrix);
+
+    //Ab hier Stack abarbeiten
+    matrix = _matrixStack.top();
+    _matrixStack.pop();
+
+    _shaderProgram.setUniformValue(unifPersMatrix, matrix);
+
+    matrix = _matrixStack.top();
+    _matrixStack.pop();
+
+    _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
+
+    //qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
+    Q_ASSERT(_matrixStack.empty());
+
+    // Binde die Textur an den OpenGL-Kontext
+    _qTex->bind();
+
+    // Übergebe die Textur an die Uniform-Variable
+    // Die 0 steht dabei für die verwendete Unit (0=Standard)
+    _shaderProgram.setUniformValue("texture", 0);
+
+    // Fülle die Attribute-Buffer mit den korrekten Daten
+    int offset = 0;
+    size_t stride = 12 * sizeof(GLfloat);
+    _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
+    offset += 8 * sizeof(GLfloat);
+    _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
+
+    glDrawElements(GL_TRIANGLES, _iboLength, GL_UNSIGNED_INT, 0);
+    // Löse die Textur aus dem OpenGL-Kontext
+    _qTex->release();
+
+    delete _qTex;
+
+    glFrontFace(GL_CCW);
+    //glCullFace(GL_BACK);
     sun->RenderWithChildren(attrVertices,
                            attrTexCoords,
                            &_shaderProgram,
                            &_matrixStack,
                            _iboLength,
-                           QVector3D(_speedFactor * -_XOffset, _speedFactor * -_YOffset, _speedFactor * -_ZOffset),
-                           _viewingAngle);
+                           QVector3D(-_XOffset, -_YOffset, -_ZOffset),
+                           _viewingAngleX,
+                           _viewingAngleY);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);

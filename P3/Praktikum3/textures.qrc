@@ -12,5 +12,7 @@
         <file>sunmap.jpg</file>
         <file>uranusmap.jpg</file>
         <file>venusmap.jpg</file>
+        <file>milkyway2.jpg</file>
+        <file>milkyway.jpg</file>
     </qresource>
 </RCC>

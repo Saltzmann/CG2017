@@ -56,13 +56,17 @@ void CelestialBody::RenderWithChildren(int attrVertices,
                                        std::stack<QMatrix4x4> *matrixStack,
                                        unsigned int iboLength,
                                        QVector3D viewingOffsets,
-                                       float viewingAngle) {
+                                       float viewingAngleX,
+                                       float viewingAngleY) {
     QMatrix4x4 matrix;
 
     //orbTrans auf Stack
     int unifModviewMatrix = 1;
     matrix.setToIdentity();
     matrix = _getOrbitalTransformationMatrix();
+    if(!matrixStack->empty()) {
+        matrix = matrixStack->top() * matrix;
+    }
     matrixStack->push(matrix);
 
     //gucken ob kinder -> ausführen mit top of Stack
@@ -74,7 +78,8 @@ void CelestialBody::RenderWithChildren(int attrVertices,
                                   matrixStack,
                                   iboLength,
                                   viewingOffsets,
-                                  viewingAngle);
+                                  viewingAngleX,
+                                  viewingAngleY);
         }
     }
 
@@ -87,6 +92,8 @@ void CelestialBody::RenderWithChildren(int attrVertices,
     int unifPersMatrix = 0;
     matrix.setToIdentity();
     matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
+    matrix.rotate(viewingAngleX, 0.f, 1.f, 0.f);
+    matrix.rotate(viewingAngleY, 1.f, 0.f, 0.f);
     matrix.translate(viewingOffsets);
     matrixStack->push(matrix);
 
@@ -181,14 +188,14 @@ QMatrix4x4 CelestialBody::_getRotationTransformationMatrix() {
     matrix2.rotate(_axialTilt, 0.f, 0.f, 1.f);
 
     //um rotationsachse rotieren
-    matrix2.rotate(_currentRotationalAngle, 0.f, 1.f, 0.f);
+    matrix2.rotate(-_currentRotationalAngle, 0.f, 1.f, 0.f);
 
     //textur ist bereits geneigt also zurückneigen
     matrix2.rotate(-_axialTilt, 0.f, 0.f, 1.f);
 
     matrix2.scale((_diameter / 2.0) * SCALE_FACTOR); //radius skalieren
-    qDebug() << "Skalierter Radius von" << _name << "beträgt" << ((_diameter / 2.0) * SCALE_FACTOR);
-    qDebug() << "Berechneter Abstand von" << _name << "zur Sonne =" << (_orbitalRadius * SCALE_FACTOR);
+    //qDebug() << "Skalierter Radius von" << _name << "beträgt" << ((_diameter / 2.0) * SCALE_FACTOR);
+    //qDebug() << "Berechneter Abstand von" << _name << "zur Sonne =" << (_orbitalRadius * SCALE_FACTOR);
 
     return matrix2;
 }
