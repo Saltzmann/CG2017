@@ -23,15 +23,16 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 private:
-    int _angle;
+    float _speedFactor;
     float _XOffset;
     float _YOffset;
     float _ZOffset;
-    void _SetAngle(int degrees);
+    float _viewingAngle;
+
     QTimer* _myTimer;
 
     //Planet Stuff
-    CelestialBody sun;
+    CelestialBody* sun;
 
     //Praktikum 3
     QOpenGLBuffer _vbo;
@@ -63,8 +64,7 @@ public:
 public slots:
     void onMessageLogged(QOpenGLDebugMessage message);
 signals:
-    void sendZOffset(int value);
-    //rename to sendSpeedFactor(int value);
+    void sendSpeedFactor(int value);
 };
 
 #endif // MYGLWIDGET_H

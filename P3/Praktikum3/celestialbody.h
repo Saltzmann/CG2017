@@ -2,7 +2,8 @@
 #define CELESTIALBODY_H
 
 #define TICKS_PER_SECOND 60
-#define SIMYEARS_PER_TICK 0.01/(double)TICKS_PER_SECOND
+#define SIMYEARS_PER_TICK 0.001/(double)TICKS_PER_SECOND
+#define SCALE_FACTOR 1/4879.4
 
 
 #include <QOpenGLTexture>
@@ -18,6 +19,7 @@ class CelestialBody : public QObject
 private:
     //Atrributes
     //initial
+    QString _name;
     double _diameter;
     float _axialTilt;
     float _rotationPeriod;
@@ -25,7 +27,7 @@ private:
     double _orbitalRadius;
     bool _CCWRotation;
     //general
-    QVector<CelestialBody> Orbiting;
+    QVector<CelestialBody*> Orbiting;
     QOpenGLTexture* _qTex;
     //fixed calculated values (for performance)
     float _rotationalAnglePerTick;
@@ -35,21 +37,24 @@ private:
     float _currentRotationalAngle;
 
     //methods
-    double _getScale();
     void _setTexture(QString filename);
     QMatrix4x4 _getOrbitalTransformationMatrix();
     QMatrix4x4 _getRotationTransformationMatrix();
 public:
-    CelestialBody(double diameter, float axialTilt,
-           float rotationPeriod, float orbitalPeriod,
-           double orbitalRadius, bool CCWRotation,
-           QString textureFileName);
-    void addOrbitingCelestialBody(CelestialBody child);
+    CelestialBody(QString planetName,
+                  double diameter, float axialTilt,
+                  float rotationPeriod, float orbitalPeriod,
+                  double orbitalRadius, bool CCWRotation,
+                  QString textureFileName);
+    void addOrbitingCelestialBody(CelestialBody* child);
     bool hasCelestialBodiesOrbiting();
-    void RenderWithChildren(QOpenGLShaderProgram* shader,
-                std::stack<QMatrix4x4> matrixStack,
-                GLfloat* vboData,
-                GLuint* indexData);
+    void RenderWithChildren(int attrVertices,
+                            int attrTexCoords,
+                            QOpenGLShaderProgram* shader,
+                            std::stack<QMatrix4x4>* matrixStack,
+                            unsigned int iboLength,
+                            QVector3D viewingOffsets,
+                            float viewingAngle);
 public slots:
    void update();
 };
