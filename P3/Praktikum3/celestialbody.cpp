@@ -58,10 +58,13 @@ void CelestialBody::RenderWithChildren(int attrVertices,
                                        QVector3D viewingOffsets,
                                        float viewingAngleX,
                                        float viewingAngleY) {
-    QMatrix4x4 matrix;
+    QMatrix4x4 matrix, matrix2, matrix3;
 
     //orbTrans auf Stack
-    int unifModviewMatrix = 1;
+    int unifModelMatrix = 2;
+    int unifViewMatrix = 1;
+    int unifProjMatrix = 0;
+
     matrix.setToIdentity();
     matrix = _getOrbitalTransformationMatrix();
     if(!matrixStack->empty()) {
@@ -89,24 +92,26 @@ void CelestialBody::RenderWithChildren(int attrVertices,
     matrixStack->top() *= matrix;
 
     //dann persMat auf Stack
-    int unifPersMatrix = 0;
-    matrix.setToIdentity();
-    matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
-    matrix.rotate(viewingAngleX, 0.f, 1.f, 0.f);
-    matrix.rotate(viewingAngleY, 1.f, 0.f, 0.f);
-    matrix.translate(viewingOffsets);
-    matrixStack->push(matrix);
+
+    matrix2.setToIdentity();
+    matrix3.setToIdentity();
+    matrix2.perspective(100.0, 16.0/9.0, 0.1, 10000.0);
+    matrix3.rotate(viewingAngleX, 0.f, 1.f, 0.f);
+    matrix3.rotate(viewingAngleY, 1.f, 0.f, 0.f);
+    matrix3.translate(viewingOffsets);
+    //matrixStack->push(matrix);
 
     //dann stack abbauen
     //erst persmat top, pop, zu shader
-    matrix = matrixStack->top();
-    matrixStack->pop();
-    shader->setUniformValue(unifPersMatrix, matrix);
+
+    shader->setUniformValue(unifProjMatrix, matrix2);
+
+    shader->setUniformValue(unifViewMatrix, matrix3);
 
     //dann modview, top, pop, zu shader
     matrix = matrixStack->top();
     matrixStack->pop();
-    shader->setUniformValue(unifModviewMatrix, matrix);
+    shader->setUniformValue(unifModelMatrix, matrix);
 
     //dann Textur binden
     _qTex->bind();

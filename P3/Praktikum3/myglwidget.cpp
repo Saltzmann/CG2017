@@ -480,10 +480,10 @@ void MyGLWidget::paintGL() {
 }
 
 void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
-    if(message.type() == QOpenGLDebugMessage::PerformanceType &&
-       message.severity() == QOpenGLDebugMessage::LowSeverity) {
-        //anti spam meassure ... demnächst gerne gefixed
-        return;
-    }
+    //if(message.type() == QOpenGLDebugMessage::PerformanceType &&
+    //   message.severity() == QOpenGLDebugMessage::LowSeverity) {
+    //    //anti spam meassure ... demnächst gerne gefixed
+    //    return;
+   // }
     qDebug() << message;
 }
