@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     QObject::connect(ui->myglwid, SIGNAL(sendSpeedFactor(int)),
                      ui->sbxScaleZ, SLOT(setValue(int)));
+    //grabMouse();
+    //setMouseTracking(true);
 }
 
 MainWindow::~MainWindow()
