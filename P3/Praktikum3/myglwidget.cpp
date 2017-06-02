@@ -183,6 +183,10 @@ void MyGLWidget::_initializeVBOs() {
         Q_ASSERT(false);
     }
 
+    _VertOffset = 0;
+    _stride = 12 * sizeof(GLfloat);
+    _TexCoordOffset = _VertOffset + 8 * sizeof(GLfloat);
+
     _vbo.allocate(_vboData, sizeof(GLfloat) * _vboLength);
     _ibo.allocate(_indexData, sizeof(GLuint) * _iboLength);
 }
@@ -395,27 +399,21 @@ void MyGLWidget::paintGL() {
     _shaderProgram.enableAttributeArray(attrVertices);
     _shaderProgram.enableAttributeArray(attrTexCoords);
 
-    //skybox
-    glFrontFace(GL_CW);
-    glFrontFace(GL_CCW);
-    //skybox muss 90° umd z gedreht werden
-    //perspective ist einzelne Matrix siehe Shader
-
     // Fülle die Attribute-Buffer mit den korrekten Daten
-    int offset = 0;
-    size_t stride = 12 * sizeof(GLfloat);
-    _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
-    offset += 8 * sizeof(GLfloat);
-    _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
+    _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, _VertOffset, 4, _stride);
+    _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, _TexCoordOffset, 4, _stride);
 
-    sun->RenderWithChildren(attrVertices,
-                           attrTexCoords,
-                           &_shaderProgram,
-                           &_matrixStack,
-                           _iboLength,
-                           QVector3D(-_XOffset, -_YOffset, -_ZOffset),
-                           _viewingAngleX,
-                           _viewingAngleY);
+    QMatrix4x4 matrix;
+    matrix.setToIdentity();
+
+    _galaxy->RenderWithChildren(attrVertices,
+                                attrTexCoords,
+                                matrix,
+                                _shaderProgram,
+                                _iboLength,
+                                (-_viewingOffsets),
+                                _viewingAngles
+                                );
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);

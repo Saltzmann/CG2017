@@ -46,6 +46,9 @@ private:
     GLuint* _indexData; // GLuint statt GLubyte, da viele Modelle groß sind
     unsigned int _vboLength;
     unsigned int _iboLength;
+    unsigned char _VertOffset;
+    unsigned char _TexCoordOffset;
+    size_t _stride;
 
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
