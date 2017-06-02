@@ -198,8 +198,8 @@ void MyGLWidget::_initializeCelestialBodies() {
 
     _galaxy = new CelestialBody("Skybox",
                                 25000000,
-                                90,
-                                -2500,
+                                0,
+                                -250000,
                                 0,
                                 0,
                                 "milkyway.jpg");
@@ -403,17 +403,28 @@ void MyGLWidget::paintGL() {
     _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, _VertOffset, 4, _stride);
     _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, _TexCoordOffset, 4, _stride);
 
-    QMatrix4x4 matrix;
-    matrix.setToIdentity();
+    QMatrix4x4 projectionMatrix, viewMatrix, modelMatrix;
 
-    _galaxy->RenderWithChildren(attrVertices,
-                                attrTexCoords,
-                                matrix,
+    modelMatrix.setToIdentity();
+
+    //ViewMatrix config - stays const during calls
+    viewMatrix.setToIdentity();
+    viewMatrix.rotate(_viewingAngles.x(), 0.f, 1.f, 0.f);
+    viewMatrix.rotate(_viewingAngles.y(), 1.f, 0.f, 0.f);
+    viewMatrix.rotate(_viewingAngles.z(), 0.f, 0.f, 1.f);
+    //viewMatrix.lookAt(); //!!!
+    viewMatrix.translate(-_viewingOffsets);
+
+
+    //ProjectionMatrix config - stays const during calls
+    projectionMatrix.setToIdentity();
+    projectionMatrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
+
+    _galaxy->RenderWithChildren(modelMatrix,
+                                viewMatrix,
+                                projectionMatrix,
                                 _shaderProgram,
-                                _iboLength,
-                                (-_viewingOffsets),
-                                _viewingAngles
-                                );
+                                _iboLength);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);

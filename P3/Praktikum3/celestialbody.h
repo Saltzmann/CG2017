@@ -36,8 +36,8 @@ private:
 
     //methods
     void _setTexture(QString filename);
-    QMatrix4x4 _getOrbitalTransformationMatrix();
-    QMatrix4x4 _getRotationTransformationMatrix();
+    void _getOrbitalTransformationMatrix(QMatrix4x4 &matrix);
+    void _getRotationTransformationMatrix(QMatrix4x4 &matrix);
 public:
     CelestialBody(QString planetName,
                   double diameter, float axialTilt,
@@ -45,13 +45,11 @@ public:
                   double orbitalRadius, QString textureFileName);
     void addOrbitingCelestialBody(CelestialBody* child);
     bool hasCelestialBodiesOrbiting();
-    void RenderWithChildren(int const &attrVertices,
-                            int const &attrTexCoords,
-                            QMatrix4x4 ctm,
+    void RenderWithChildren(QMatrix4x4 ctm,
+                            QMatrix4x4 const &viewMatrix,
+                            QMatrix4x4 const &projectionMatrix,
                             QOpenGLShaderProgram& shader,
-                            unsigned int const &iboLength,
-                            QVector3D const &viewingOffsets,
-                            QVector3D const &viewingAngles);
+                            unsigned int const &iboLength);
 public slots:
    void update();
 };

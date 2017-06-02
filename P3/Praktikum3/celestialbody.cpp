@@ -11,7 +11,6 @@ CelestialBody::CelestialBody(QString planetName,
     this->_rotationPeriod = rotationPeriod;
     this->_orbitalPeriod = orbitalPeriod;
     this->_orbitalRadius = orbitalRadius;
-    this->_CCWRotation = CCWRotation;
 
     //calculated values
     //Periods sind immer in Tagen angegeben = Zeit für 360 Grad Drehung
@@ -20,10 +19,6 @@ CelestialBody::CelestialBody(QString planetName,
     // das mal Beschleunigungs/Simulationsfaktor = ergebnis
 
     this->_rotationalAnglePerTick = ((360.0 / _rotationPeriod) * 365.25) * SIMYEARS_PER_TICK;
-
-    if(_CCWRotation) {
-        _rotationalAnglePerTick *= -1;
-    }
 
     if(_orbitalPeriod > 0.0) {
         this->_orbitalAnglePerTick = ((360.f / _orbitalPeriod) * 365.25) * SIMYEARS_PER_TICK;
@@ -50,84 +45,55 @@ bool CelestialBody::hasCelestialBodiesOrbiting() {
     return (!Orbiting.empty());
 }
 
-void CelestialBody::RenderWithChildren(int attrVertices,
-                                       int attrTexCoords,
-                                       QOpenGLShaderProgram *shader,
-                                       std::stack<QMatrix4x4> *matrixStack,
-                                       unsigned int iboLength,
-                                       QVector3D viewingOffsets,
-                                       float viewingAngleX,
-                                       float viewingAngleY) {
-    QMatrix4x4 matrix, matrix2, matrix3;
+void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
+                                       const QMatrix4x4 &viewMatrix,
+                                       const QMatrix4x4 &projectionMatrix,
+                                       QOpenGLShaderProgram& shader,
+                                       unsigned int const &iboLength) {
+    //skybox muss 90° umd z gedreht werden
+    //perspective ist einzelne Matrix siehe Shader
 
     //orbTrans auf Stack
-    int unifModelMatrix = 2;
-    int unifViewMatrix = 1;
     int unifProjMatrix = 0;
+    int unifViewMatrix = 1;
+    int unifModelMatrix = 2;
 
-    matrix.setToIdentity();
-    matrix = _getOrbitalTransformationMatrix();
-    if(!matrixStack->empty()) {
-        matrix = matrixStack->top() * matrix;
-    }
-    matrixStack->push(matrix);
+    //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
+    _getOrbitalTransformationMatrix(ctm);
 
     //gucken ob kinder -> ausführen mit top of Stack
     if(!Orbiting.empty()) {
         for(CelestialBody* x : Orbiting) { //gucken ob er foreach kann!!
-            x->RenderWithChildren(attrVertices,
-                                  attrTexCoords,
+            x->RenderWithChildren(ctm,
+                                  viewMatrix,
+                                  projectionMatrix,
                                   shader,
-                                  matrixStack,
-                                  iboLength,
-                                  viewingOffsets,
-                                  viewingAngleX,
-                                  viewingAngleY);
+                                  iboLength);
         }
     }
 
-    //rotTrans mit top of Stack multiplizieren
-    matrix.setToIdentity();
-    matrix = _getRotationTransformationMatrix();
-    matrixStack->top() *= matrix;
+    _getRotationTransformationMatrix(ctm);
 
-    //dann persMat auf Stack
-
-    matrix2.setToIdentity();
-    matrix3.setToIdentity();
-    matrix2.perspective(100.0, 16.0/9.0, 0.1, 10000.0);
-    matrix3.rotate(viewingAngleX, 0.f, 1.f, 0.f);
-    matrix3.rotate(viewingAngleY, 1.f, 0.f, 0.f);
-    matrix3.translate(viewingOffsets);
-    //matrixStack->push(matrix);
-
-    //dann stack abbauen
-    //erst persmat top, pop, zu shader
-
-    shader->setUniformValue(unifProjMatrix, matrix2);
-
-    shader->setUniformValue(unifViewMatrix, matrix3);
-
-    //dann modview, top, pop, zu shader
-    matrix = matrixStack->top();
-    matrixStack->pop();
-    shader->setUniformValue(unifModelMatrix, matrix);
+    shader.setUniformValue(unifProjMatrix, projectionMatrix);
+    shader.setUniformValue(unifViewMatrix, viewMatrix);
+    shader.setUniformValue(unifModelMatrix, ctm);
 
     //dann Textur binden
     _qTex->bind();
 
     //an shader übergeben
-    shader->setUniformValue("texture", 0);
+    shader.setUniformValue("texture", 0);
 
-    //vertices und texcoords an shader geben
-    int offset = 0;
-    size_t stride = 12 * sizeof(GLfloat);
-    shader->setAttributeBuffer(attrVertices, GL_FLOAT, offset, 4, stride);
-    offset += 8 * sizeof(GLfloat);
-    shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
+    if(_name == "Skybox") { //frontface wechseln
+        glFrontFace(GL_CW);
+    }
 
     //zeichnen lassen
     glDrawElements(GL_TRIANGLES, iboLength, GL_UNSIGNED_INT, 0);
+
+    if(_name == "Skybox") { //frontface zurück wechseln
+        glFrontFace(GL_CCW);
+    }
 
     // Löse die Textur aus dem OpenGL-Kontext
     _qTex->release();
@@ -164,44 +130,35 @@ void CelestialBody::update() {
     //qDebug() << "currentOrbAngle : " << _currentOrbitalAngle;
 }
 
-QMatrix4x4 CelestialBody::_getOrbitalTransformationMatrix() {
-    QMatrix4x4 matrix1;
+void CelestialBody::_getOrbitalTransformationMatrix(QMatrix4x4 &matrix) {
 
     //andersherum...sprich lies von unten nach oben
 
-    matrix1.setToIdentity();
-
     //betrifft ORBIT
     //um Sonne/Planet rotieren
-    matrix1.rotate(_currentOrbitalAngle, 0.f, 1.f, 0.f);
+    matrix.rotate(_currentOrbitalAngle, 0.f, 1.f, 0.f);
 
     //in den Orbit translatieren
-    matrix1.translate(_orbitalRadius * SCALE_FACTOR, 0.f, 0.f);
-
-    return matrix1;
+    matrix.translate(_orbitalRadius * SCALE_FACTOR, 0.f, 0.f);
 }
 
-QMatrix4x4 CelestialBody::_getRotationTransformationMatrix() {
-    QMatrix4x4 matrix2;
-    matrix2.setToIdentity();
+void CelestialBody::_getRotationTransformationMatrix(QMatrix4x4 &matrix) {
 
     //betrifft EIGENROTATION
     //orbitale rotation dreht auch Planet, da dies nicht gewollt ist vorher gegenrotieren
-    matrix2.rotate(-_currentOrbitalAngle, 0.f, 1.f, 0.f);
+    matrix.rotate(-_currentOrbitalAngle, 0.f, 1.f, 0.f);
 
     //wieder um achse neigen
-    matrix2.rotate(_axialTilt, 0.f, 0.f, 1.f);
+    matrix.rotate(_axialTilt, 0.f, 0.f, 1.f);
 
     //um rotationsachse rotieren
-    matrix2.rotate(-_currentRotationalAngle, 0.f, 1.f, 0.f);
+    matrix.rotate(-_currentRotationalAngle, 0.f, 1.f, 0.f);
 
     //textur ist bereits geneigt also zurückneigen
-    matrix2.rotate(-_axialTilt, 0.f, 0.f, 1.f);
+    matrix.rotate(-_axialTilt, 0.f, 0.f, 1.f);
 
-    matrix2.scale((_diameter / 2.0) * SCALE_FACTOR); //radius skalieren
+    matrix.scale((_diameter / 2.0) * SCALE_FACTOR); //radius skalieren
     //qDebug() << "Skalierter Radius von" << _name << "beträgt" << ((_diameter / 2.0) * SCALE_FACTOR);
     //qDebug() << "Berechneter Abstand von" << _name << "zur Sonne =" << (_orbitalRadius * SCALE_FACTOR);
-
-    return matrix2;
 }
 
