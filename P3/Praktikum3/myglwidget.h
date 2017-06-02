@@ -59,7 +59,6 @@ public:
     MyGLWidget(QWidget *parent);
     void initializeGL();
     void paintGL();
-    void resizeGL(int width, int height);
     void keyPressEvent(QKeyEvent *event);
     void wheelEvent(QWheelEvent *event);    
 public slots:

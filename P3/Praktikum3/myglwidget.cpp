@@ -154,15 +154,6 @@ void MyGLWidget::initializeGL() {
     _fillBuffers();
 }
 
-void MyGLWidget::resizeGL(int width, int height) {
-    // Compute aspect ratio
-    height = (height == 0) ? 1 : height;
-    //GLfloat aspect = (GLfloat)width / (GLfloat)height;
-
-    // Set viewport to cover the whole window
-    glViewport(0, 0, width, height);
-}
-
 void MyGLWidget::_initializeVBOs() {
     // Lade Modell aus Datei
     // Anm.: Linux/Unix kommt mit einem relativen Pfad hier evtl. nicht zurecht
@@ -480,10 +471,10 @@ void MyGLWidget::paintGL() {
 }
 
 void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
-    //if(message.type() == QOpenGLDebugMessage::PerformanceType &&
-    //   message.severity() == QOpenGLDebugMessage::LowSeverity) {
-    //    //anti spam meassure ... demnächst gerne gefixed
-    //    return;
-   // }
+    if(message.type() == QOpenGLDebugMessage::PerformanceType &&
+       message.severity() == QOpenGLDebugMessage::LowSeverity) {
+       //anti spam meassure ... demnächst gerne gefixed
+       return;
+    }
     qDebug() << message;
 }
