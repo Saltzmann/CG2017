@@ -3,14 +3,13 @@
 
 #define TICKS_PER_SECOND 60
 #define SIMYEARS_PER_TICK 0.05/(double)TICKS_PER_SECOND
-#define SCALE_FACTOR 1/4879.4
+#define SCALE_FACTOR 1/4879.4 //vielfaches von Merkur
 
 
 #include <QOpenGLTexture>
 #include <QVector>
 #include <QMatrix4x4>
 #include <QOpenGLShaderProgram>
-#include <stack>
 
 
 class CelestialBody : public QObject
@@ -25,7 +24,6 @@ private:
     float _rotationPeriod;
     double _orbitalPeriod;
     double _orbitalRadius;
-    bool _CCWRotation;
     //general
     QVector<CelestialBody*> Orbiting;
     QOpenGLTexture* _qTex;
@@ -44,18 +42,16 @@ public:
     CelestialBody(QString planetName,
                   double diameter, float axialTilt,
                   float rotationPeriod, float orbitalPeriod,
-                  double orbitalRadius, bool CCWRotation,
-                  QString textureFileName);
+                  double orbitalRadius, QString textureFileName);
     void addOrbitingCelestialBody(CelestialBody* child);
     bool hasCelestialBodiesOrbiting();
-    void RenderWithChildren(int attrVertices,
-                            int attrTexCoords,
-                            QOpenGLShaderProgram* shader,
-                            std::stack<QMatrix4x4>* matrixStack,
-                            unsigned int iboLength,
-                            QVector3D viewingOffsets,
-                            float viewingAngleX,
-                            float viewingAngleY);
+    void RenderWithChildren(int const &attrVertices,
+                            int const &attrTexCoords,
+                            QMatrix4x4 ctm,
+                            QOpenGLShaderProgram& shader,
+                            unsigned int const &iboLength,
+                            QVector3D const &viewingOffsets,
+                            QVector3D const &viewingAngles);
 public slots:
    void update();
 };

@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QKeyEvent>
 #include <QWheelEvent>
+#include <QMouseEvent>
 #include <QTimer>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions>
@@ -24,17 +25,14 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 private:
     float _speedFactor;
-    float _XOffset;
-    float _YOffset;
-    float _ZOffset;
-    float _viewingAngleX;
-    float _viewingAngleY;
+    QVector3D _viewingOffsets;
+    QVector3D _viewingAngles;
 
     QTimer* _myTimer;
 
     //Planet Stuff
-    CelestialBody* _skybox;
-    CelestialBody* _sun;
+    CelestialBody* _galaxy;
+    CelestialBody* sun;
 
     //Praktikum 3
     QOpenGLBuffer _vbo;
@@ -61,6 +59,7 @@ public:
     void initializeGL();
     void paintGL();
     void keyPressEvent(QKeyEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
     void wheelEvent(QWheelEvent *event);    
 public slots:
     void onMessageLogged(QOpenGLDebugMessage message);

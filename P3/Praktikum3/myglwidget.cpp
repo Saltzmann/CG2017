@@ -1,10 +1,5 @@
 #include "myglwidget.h"
 
-#define WINDOW_CAPTION "Computergrafik Praktikum"
-#define WINDOW_XPOS 50
-#define WINDOW_YPOS 50
-#define WINDOW_WIDTH 480
-#define WINDOW_HEIGHT 480
 #define UPDATE_RATE 60
 #define INITIAL_CAMERA_OFFSET 500.0f
 #define INITIAL_SPEED_FACTOR 10
@@ -16,12 +11,10 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
                                           _ibo(QOpenGLBuffer::IndexBuffer)
                                         {
     _speedFactor = INITIAL_SPEED_FACTOR;
-    _XOffset = 0.f;
-    _YOffset = 0.f;
-    _ZOffset = INITIAL_CAMERA_OFFSET;
-    _viewingAngleX = 0.f;
-    _viewingAngleY = 0.f;
+    _viewingOffsets = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
+    _viewingAngles = QVector3D(0.f, 0.f, 0.f);
 
+    //Fürs Keyboard
     setFocusPolicy(Qt::StrongFocus);
 
     //Debug Output Versionsnummer etc.
@@ -47,61 +40,72 @@ void MyGLWidget::wheelEvent(QWheelEvent *event) {
     this->update();
 }
 
+void MyGLWidget::mouseMoveEvent(QMouseEvent *event) {
+    event->accept();
+}
+
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
 
     //TODO auch wenn falsch und doof erstmal hier lassen bis Rest gefixed =)
 
     //nach oben
     if (event->key() == (int)Qt::Key_W) {
-        _YOffset += 1.f * _speedFactor;
+        //_YOffset += 1.f * _speedFactor;
+        _viewingOffsets.setY(_viewingOffsets.y() + (1.f * _speedFactor));
     }
     //nach unten
     else if(event->key() == (int)Qt::Key_S) {
-        _YOffset -= 1.f * _speedFactor;
+        //_YOffset -= 1.f * _speedFactor;
+        _viewingOffsets.setY(_viewingOffsets.y() - (1.f * _speedFactor));
     }
     //Links (strafe)
     else if(event->key() == (int)Qt::Key_A) {
-        _XOffset  -= 1.f * _speedFactor;
+        //_XOffset  -= 1.f * _speedFactor;
+        _viewingOffsets.setX(_viewingOffsets.x() - (1.f * _speedFactor));
     }
     //Rechts (strafe)
     else if(event->key() == (int)Qt::Key_D) {
-        _XOffset += 1.f * _speedFactor;
+        //_XOffset += 1.f * _speedFactor;
+        _viewingOffsets.setX(_viewingOffsets.x() + (1.f * _speedFactor));
     }
     //nach vorne
     else if (event->key() == (int)Qt::Key_E) {
-        _ZOffset -= 1.f * _speedFactor;
+        //_ZOffset -= 1.f * _speedFactor;
+        _viewingOffsets.setZ(_viewingOffsets.z() - (1.f * _speedFactor));
     }
     //nach hinten
     else if(event->key() == (int)Qt::Key_Q) {
-        _ZOffset += 1.f * _speedFactor;
+        //_ZOffset += 1.f * _speedFactor;
+        _viewingOffsets.setZ(_viewingOffsets.z() + (1.f * _speedFactor));
     }
     //Links (turn)
     else if(event->key() == (int)Qt::Key_Left) {
-        _viewingAngleX -= 2.f;
+        //_viewingAngleX -= 2.f;
+        _viewingAngles.setX(_viewingAngles.x() - 2.f);
     }
     //Rechts (turn)
     else if(event->key() == (int)Qt::Key_Right) {
-        _viewingAngleX += 2.f;
+        //_viewingAngleX += 2.f;
+        _viewingAngles.setX(_viewingAngles.x() + 2.f);
     }
     //Hoch (turn)
     else if(event->key() == (int)Qt::Key_Up) {
-        _viewingAngleY -= 2.f;
+        //_viewingAngleY -= 2.f;
+        _viewingAngles.setY(_viewingAngles.y() - 2.f);
     }
     //Runter (turn)
     else if(event->key() == (int)Qt::Key_Down) {
-        _viewingAngleY += 2.f;
+        //_viewingAngleY += 2.f;
+        _viewingAngles.setY(_viewingAngles.y() + 2.f);
     }
-    else if(event->key() == (int)Qt::Key_R) { //hard reset
-        _XOffset = 0;
-        _YOffset = 0;
-        _ZOffset = INITIAL_CAMERA_OFFSET;
+    else if(event->key() == (int)Qt::Key_B) { //hard reset
+        _viewingOffsets = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
+        _viewingAngles = QVector3D(0.f, 0.f, 0.f);
         _speedFactor = INITIAL_SPEED_FACTOR;
-        _viewingAngleX = 0;
-        _viewingAngleY = 0;
     }
-    else if(event->key() == (int)Qt::Key_F) { //soft reset
-        _viewingAngleX = 0;
-        _viewingAngleY = 0;
+    else if(event->key() == (int)Qt::Key_N) { //soft reset
+        _viewingAngles = QVector3D(0.f, 0.f, 0.f);
+        _speedFactor = INITIAL_SPEED_FACTOR;
     }
     else if(event->key() == Qt::Key_H) {
         if(_myTimer->isActive()) {
@@ -184,43 +188,46 @@ void MyGLWidget::_initializeVBOs() {
 }
 
 void MyGLWidget::_initializeCelestialBodies() {
+    CelestialBody* sun = nullptr;
     CelestialBody* planet = nullptr;
     CelestialBody* moon = nullptr;
 
-    _skybox = new CelestialBody("Skybox",
+    _galaxy = new CelestialBody("Skybox",
                                 25000000,
                                 90,
-                                2500,
+                                -2500,
                                 0,
                                 0,
-                                true,
                                 "milkyway.jpg");
 
-    _sun = new CelestialBody("Sun",
+    connect(_myTimer, SIGNAL(timeout()),
+            _galaxy, SLOT(update()));
+
+    sun = new CelestialBody("Sun",
                             1392684,
                             7.25,
-                            25.38,
+                            -25.38,
                             0,
                             0,
-                            true,
                             "sunmap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
-            _sun, SLOT(update()));
+            sun, SLOT(update()));
+
+    _galaxy->addOrbitingCelestialBody(sun);
 
     planet = new CelestialBody("Mercury",
                                4879.4,
                                0.01,
-                               59,
+                               -59,
                                88,
                                800000,
-                               true,
                                "mercurymap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Venus",
                                12103.6,
@@ -228,35 +235,32 @@ void MyGLWidget::_initializeCelestialBodies() {
                                243,
                                225,
                                850000,
-                               false,
                                "venusmap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Earth",
                                12756.32,
                                23.44,
-                               1,
+                               -1,
                                365.25,
                                900000,
-                               true,
                                "earthmap1k.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     moon = new CelestialBody("Moon",
                              3476,
                              6.68,
-                             27,
+                             -27,
                              27,
                              12000,
-                             true,
                              "moonmap1k.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
@@ -267,24 +271,22 @@ void MyGLWidget::_initializeCelestialBodies() {
     planet = new CelestialBody("Mars",
                                6792.4,
                                25.19,
-                               1,
+                               -1,
                                687,
                                950000,
-                               true,
                                "mars_1k_color.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     moon = new CelestialBody("Phobos",
                               1000, //faktor 50 zu viel aber sonst sieht man nix
                               0,
-                              0.32,
+                              -0.32,
                               0.32,
                               5000,
-                              true,
                               "phobosbump.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
@@ -295,10 +297,9 @@ void MyGLWidget::_initializeCelestialBodies() {
     moon = new CelestialBody("Deimos",
                               600, //faktor 50 zu viel aber sonst sieht man nix
                               0,
-                              1.26,
+                              -1.26,
                               1.26,
                               6000,
-                              true,
                               "deimosbump.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
@@ -309,30 +310,28 @@ void MyGLWidget::_initializeCelestialBodies() {
     planet = new CelestialBody("Jupiter",
                                142984,
                                3.13,
-                               0.42,
+                               -0.42,
                                4333,
                                1200000,
-                               true,
                                "jupiter2_1k.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Saturn",
                                120536,
                                26.73,
-                               0.42,
+                               -0.42,
                                10752,
                                1500000,
-                               true,
                                "saturnmap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Uranus",
                                51118,
@@ -340,27 +339,25 @@ void MyGLWidget::_initializeCelestialBodies() {
                                0.72,
                                30664,
                                1750000,
-                               false,
                                "uranusmap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Neptune",
                                49528,
                                28.32,
-                               0.67,
+                               -0.67,
                                60142,
                                1900000,
-                               true,
                                "neptunemap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    _sun->addOrbitingCelestialBody(planet);
+    sun->addOrbitingCelestialBody(planet);
 }
 
 void MyGLWidget::_fillBuffers() {
@@ -411,7 +408,7 @@ void MyGLWidget::paintGL() {
     offset += 8 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
 
-    _sun->RenderWithChildren(attrVertices,
+    sun->RenderWithChildren(attrVertices,
                            attrTexCoords,
                            &_shaderProgram,
                            &_matrixStack,

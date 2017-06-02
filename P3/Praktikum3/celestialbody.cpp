@@ -3,7 +3,7 @@
 CelestialBody::CelestialBody(QString planetName,
                              double diameter, float axialTilt,
                              float rotationPeriod, float orbitalPeriod,
-                             double orbitalRadius, bool CCWRotation, QString textureFileName) {
+                             double orbitalRadius, QString textureFileName) {
     //Simple start values
     this->_name = planetName;
     this->_diameter = diameter;
@@ -73,7 +73,7 @@ void CelestialBody::RenderWithChildren(int attrVertices,
     matrixStack->push(matrix);
 
     //gucken ob kinder -> ausführen mit top of Stack
-    if(hasCelestialBodiesOrbiting()) {
+    if(!Orbiting.empty()) {
         for(CelestialBody* x : Orbiting) { //gucken ob er foreach kann!!
             x->RenderWithChildren(attrVertices,
                                   attrTexCoords,
