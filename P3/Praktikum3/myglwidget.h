@@ -33,7 +33,8 @@ private:
     QTimer* _myTimer;
 
     //Planet Stuff
-    CelestialBody* sun;
+    CelestialBody* _skybox;
+    CelestialBody* _sun;
 
     //Praktikum 3
     QOpenGLBuffer _vbo;
@@ -41,8 +42,6 @@ private:
 
     //Shader
     QOpenGLShaderProgram _shaderProgram;
-    //MatrixStack, damit überall erreichbar und nicht immmer "neu"
-    std::stack<QMatrix4x4> _matrixStack;
 
     //Modelle
     GLfloat* _vboData;
@@ -52,6 +51,8 @@ private:
 
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
+
+    //Hilfsfunktionen
     void _initializeVBOs();
     void _initializeCelestialBodies();
     void _fillBuffers();

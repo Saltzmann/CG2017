@@ -48,6 +48,9 @@ void MyGLWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void MyGLWidget::keyPressEvent(QKeyEvent *event) {
+
+    //TODO auch wenn falsch und doof erstmal hier lassen bis Rest gefixed =)
+
     //nach oben
     if (event->key() == (int)Qt::Key_W) {
         _YOffset += 1.f * _speedFactor;
@@ -113,7 +116,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     }
     event->accept();
     this->update();
-    //Wenn wir die Sliderwerte über die Tastatur verändern passiert nichts mehr...
 }
 
 void MyGLWidget::initializeGL() {
@@ -136,14 +138,14 @@ void MyGLWidget::initializeGL() {
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
     glClearDepth(1.0f);
-    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f); //schwarz
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß, damit man den Unterschied zur Skybox sieht
 
     _myTimer = new QTimer(this);    
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
     _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
+
     // Kompiliere und linke die Shader-Programme
     _shaderProgram.link();
 
@@ -185,7 +187,16 @@ void MyGLWidget::_initializeCelestialBodies() {
     CelestialBody* planet = nullptr;
     CelestialBody* moon = nullptr;
 
-    sun = new CelestialBody("Sun",
+    _skybox = new CelestialBody("Skybox",
+                                25000000,
+                                90,
+                                2500,
+                                0,
+                                0,
+                                true,
+                                "milkyway.jpg");
+
+    _sun = new CelestialBody("Sun",
                             1392684,
                             7.25,
                             25.38,
@@ -195,7 +206,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                             "sunmap.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
-            sun, SLOT(update()));
+            _sun, SLOT(update()));
 
     planet = new CelestialBody("Mercury",
                                4879.4,
@@ -209,7 +220,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Venus",
                                12103.6,
@@ -223,7 +234,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Earth",
                                12756.32,
@@ -237,7 +248,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     moon = new CelestialBody("Moon",
                              3476,
@@ -265,7 +276,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     moon = new CelestialBody("Phobos",
                               1000, //faktor 50 zu viel aber sonst sieht man nix
@@ -307,7 +318,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Saturn",
                                120536,
@@ -321,7 +332,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Uranus",
                                51118,
@@ -335,7 +346,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 
     planet = new CelestialBody("Neptune",
                                49528,
@@ -349,7 +360,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
 
-    sun->addOrbitingCelestialBody(planet);
+    _sun->addOrbitingCelestialBody(planet);
 }
 
 void MyGLWidget::_fillBuffers() {
@@ -387,52 +398,11 @@ void MyGLWidget::paintGL() {
     _shaderProgram.enableAttributeArray(attrVertices);
     _shaderProgram.enableAttributeArray(attrTexCoords);
 
-    Q_ASSERT(_matrixStack.empty());
-
     //skybox
     glFrontFace(GL_CW);
-    //glCullFace(GL_FRONT);
-    QOpenGLTexture* _qTex = new QOpenGLTexture(QImage(":/milkyway.jpg").mirrored());
-    _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
-    _qTex->setWrapMode(QOpenGLTexture::MirroredRepeat);
-    Q_ASSERT(_qTex->textureId() != 0);
-
-    QMatrix4x4 matrix;
-    int unifModviewMatrix = 1;
-    matrix.setToIdentity();
-    matrix.rotate(90, 0.f, 0.f, 1.f);
-    matrix.scale(25000000 * SCALE_FACTOR);
-    _matrixStack.push(matrix);
-
-    int unifPersMatrix = 0;
-    matrix.setToIdentity();
-    matrix.perspective(60.0, 16.0/9.0, 0.1, 10000.0);
-    matrix.rotate(_viewingAngleX, 0.f, 1.f, 0.f);
-    matrix.rotate(_viewingAngleY, 1.f, 0.f, 0.f);
-    matrix.translate(-_XOffset, -_YOffset, -_ZOffset);
-    _matrixStack.push(matrix);
-
-    //Ab hier Stack abarbeiten
-    matrix = _matrixStack.top();
-    _matrixStack.pop();
-
-    _shaderProgram.setUniformValue(unifPersMatrix, matrix);
-
-    matrix = _matrixStack.top();
-    _matrixStack.pop();
-
-    _shaderProgram.setUniformValue(unifModviewMatrix, matrix);
-
-    //qDebug() << "MatrixStack is now empty: " << _matrixStack.empty();
-    Q_ASSERT(_matrixStack.empty());
-
-    // Binde die Textur an den OpenGL-Kontext
-    _qTex->bind();
-
-    // Übergebe die Textur an die Uniform-Variable
-    // Die 0 steht dabei für die verwendete Unit (0=Standard)
-    _shaderProgram.setUniformValue("texture", 0);
+    glFrontFace(GL_CCW);
+    //skybox muss 90° umd z gedreht werden
+    //perspective ist einzelne Matrix siehe Shader
 
     // Fülle die Attribute-Buffer mit den korrekten Daten
     int offset = 0;
@@ -441,15 +411,7 @@ void MyGLWidget::paintGL() {
     offset += 8 * sizeof(GLfloat);
     _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, offset, 4, stride);
 
-    glDrawElements(GL_TRIANGLES, _iboLength, GL_UNSIGNED_INT, 0);
-    // Löse die Textur aus dem OpenGL-Kontext
-    _qTex->release();
-
-    delete _qTex;
-
-    glFrontFace(GL_CCW);
-    //glCullFace(GL_BACK);
-    sun->RenderWithChildren(attrVertices,
+    _sun->RenderWithChildren(attrVertices,
                            attrTexCoords,
                            &_shaderProgram,
                            &_matrixStack,
