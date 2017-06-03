@@ -25,8 +25,11 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 private:
     float _speedFactor;
-    QVector3D _viewingOffsets;
-    QVector3D _viewingAngles;
+    QVector3D _viewOffset;
+    QVector3D _viewDirection;
+    QVector3D const _upVector;
+    QVector3D _rightVector;
+    QVector2D _oldMousePosition;
 
     QTimer* _myTimer;
 

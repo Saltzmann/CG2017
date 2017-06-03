@@ -2,20 +2,24 @@
 
 #define UPDATE_RATE 60
 #define INITIAL_CAMERA_OFFSET 500.0f
-#define INITIAL_SPEED_FACTOR 10
+#define INITIAL_SPEED_FACTOR 1
 #define TICKRATE 1000/UPDATE_RATE
+#define CAMERA_TURN_SPEED 1.f/5.f
 
 
 MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
+                                          _upVector(0.f, 1.f, 0.f),
                                           _vbo(QOpenGLBuffer::VertexBuffer),
                                           _ibo(QOpenGLBuffer::IndexBuffer)
                                         {
     _speedFactor = INITIAL_SPEED_FACTOR;
-    _viewingOffsets = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
-    _viewingAngles = QVector3D(0.f, 0.f, 0.f);
+    _viewOffset = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
+    _viewDirection = QVector3D(0.f, 0.f, 1.f);
+    _rightVector = QVector3D(1.f, 0.f, 0.f);
 
     //Fürs Keyboard
     setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
 
     //Debug Output Versionsnummer etc.
     QSurfaceFormat fmt = this->format();
@@ -33,6 +37,9 @@ void MyGLWidget::wheelEvent(QWheelEvent *event) {
     if (numDegrees != 0) {
         int numSteps = numDegrees / 15;
         _speedFactor += (float)numSteps * 0.1;
+        if(_speedFactor < 0) {
+            _speedFactor = 1.f;
+        }
         emit sendSpeedFactor(_speedFactor);
         //qDebug() << "Speedfactor:" << _speedFactor;
     }
@@ -41,6 +48,19 @@ void MyGLWidget::wheelEvent(QWheelEvent *event) {
 }
 
 void MyGLWidget::mouseMoveEvent(QMouseEvent *event) {
+    QVector2D currentMousePosition = QVector2D(event->windowPos());
+    QVector2D mouseDelta =  currentMousePosition - _oldMousePosition;
+    _oldMousePosition = currentMousePosition;
+
+    _rightVector = QVector3D::crossProduct(_viewDirection, _upVector);
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix.setToIdentity();
+    rotationMatrix.rotate(-mouseDelta.x() * CAMERA_TURN_SPEED, _upVector);
+    rotationMatrix.rotate(-mouseDelta.y() * CAMERA_TURN_SPEED, _rightVector);
+
+    _viewDirection = QVector3D(rotationMatrix * _viewDirection.toVector4D()).normalized();
+    _rightVector = QVector3D::crossProduct(_viewDirection, _upVector).normalized();
+
     event->accept();
 }
 
@@ -48,63 +68,37 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
 
     //TODO auch wenn falsch und doof erstmal hier lassen bis Rest gefixed =)
 
-    //nach oben
-    if (event->key() == (int)Qt::Key_W) {
-        //_YOffset += 1.f * _speedFactor;
-        _viewingOffsets.setY(_viewingOffsets.y() + (1.f * _speedFactor));
-    }
-    //nach unten
-    else if(event->key() == (int)Qt::Key_S) {
-        //_YOffset -= 1.f * _speedFactor;
-        _viewingOffsets.setY(_viewingOffsets.y() - (1.f * _speedFactor));
-    }
-    //Links (strafe)
-    else if(event->key() == (int)Qt::Key_A) {
-        //_XOffset  -= 1.f * _speedFactor;
-        _viewingOffsets.setX(_viewingOffsets.x() - (1.f * _speedFactor));
-    }
-    //Rechts (strafe)
-    else if(event->key() == (int)Qt::Key_D) {
-        //_XOffset += 1.f * _speedFactor;
-        _viewingOffsets.setX(_viewingOffsets.x() + (1.f * _speedFactor));
-    }
     //nach vorne
-    else if (event->key() == (int)Qt::Key_E) {
-        //_ZOffset -= 1.f * _speedFactor;
-        _viewingOffsets.setZ(_viewingOffsets.z() - (1.f * _speedFactor));
+    if (event->key() == (int)Qt::Key_W) {
+        _viewOffset += _viewDirection *_speedFactor;
     }
     //nach hinten
-    else if(event->key() == (int)Qt::Key_Q) {
-        //_ZOffset += 1.f * _speedFactor;
-        _viewingOffsets.setZ(_viewingOffsets.z() + (1.f * _speedFactor));
+    else if(event->key() == (int)Qt::Key_S) {
+        _viewOffset -= _viewDirection *_speedFactor;
     }
-    //Links (turn)
-    else if(event->key() == (int)Qt::Key_Left) {
-        //_viewingAngleX -= 2.f;
-        _viewingAngles.setX(_viewingAngles.x() - 2.f);
+    //Links (strafe)
+    else if(event->key() == (int)Qt::Key_D) {
+        _viewOffset += _rightVector *_speedFactor;
     }
-    //Rechts (turn)
-    else if(event->key() == (int)Qt::Key_Right) {
-        //_viewingAngleX += 2.f;
-        _viewingAngles.setX(_viewingAngles.x() + 2.f);
+    //Rechts (strafe)
+    else if(event->key() == (int)Qt::Key_A) {
+        _viewOffset -= _rightVector *_speedFactor;
     }
-    //Hoch (turn)
-    else if(event->key() == (int)Qt::Key_Up) {
-        //_viewingAngleY -= 2.f;
-        _viewingAngles.setY(_viewingAngles.y() - 2.f);
+    //hoch
+    else if(event->key() == (int)Qt::Key_R) {
+        _viewOffset += _upVector *_speedFactor;
     }
-    //Runter (turn)
-    else if(event->key() == (int)Qt::Key_Down) {
-        //_viewingAngleY += 2.f;
-        _viewingAngles.setY(_viewingAngles.y() + 2.f);
+    //runter
+    else if(event->key() == (int)Qt::Key_F) {
+        _viewOffset -= _upVector *_speedFactor;
     }
     else if(event->key() == (int)Qt::Key_B) { //hard reset
-        _viewingOffsets = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
-        _viewingAngles = QVector3D(0.f, 0.f, 0.f);
+        _viewOffset = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
+        _viewDirection = QVector3D(0.f, 0.f, -1.f);
         _speedFactor = INITIAL_SPEED_FACTOR;
     }
     else if(event->key() == (int)Qt::Key_N) { //soft reset
-        _viewingAngles = QVector3D(0.f, 0.f, 0.f);
+        _viewDirection = QVector3D(0.f, 0.f, -1.f);
         _speedFactor = INITIAL_SPEED_FACTOR;
     }
     else if(event->key() == Qt::Key_H) {
@@ -202,7 +196,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                 -250000,
                                 0,
                                 0,
-                                "milkyway.jpg");
+                                "milkyway5.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             _galaxy, SLOT(update()));
@@ -409,12 +403,7 @@ void MyGLWidget::paintGL() {
 
     //ViewMatrix config - stays const during calls
     viewMatrix.setToIdentity();
-    viewMatrix.rotate(_viewingAngles.x(), 0.f, 1.f, 0.f);
-    viewMatrix.rotate(_viewingAngles.y(), 1.f, 0.f, 0.f);
-    viewMatrix.rotate(_viewingAngles.z(), 0.f, 0.f, 1.f);
-    //viewMatrix.lookAt(); //!!!
-    viewMatrix.translate(-_viewingOffsets);
-
+    viewMatrix.lookAt(_viewOffset, _viewOffset + _viewDirection, _upVector);
 
     //ProjectionMatrix config - stays const during calls
     projectionMatrix.setToIdentity();

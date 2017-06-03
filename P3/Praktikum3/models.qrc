@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>deimos.obj</file>
-        <file>phobos.obj</file>
-        <file>sphere_high.obj</file>
-        <file>sphere_low.obj</file>
-    </qresource>
-</RCC>
