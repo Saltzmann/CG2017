@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/">
+        <file>default330.frag</file>
+        <file>default130.frag</file>
+        <file>default130.vert</file>
+        <file>default330.vert</file>
+        <file>norm330.frag</file>
+        <file>norm330.vert</file>
+    </qresource>
+</RCC>
