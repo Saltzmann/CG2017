@@ -148,8 +148,13 @@ void MyGLWidget::initializeGL() {
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
 
+    // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
+    _normalShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/norm330.vert");
+    _normalShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/norm330.frag");
+
     // Kompiliere und linke die Shader-Programme
     _defaultShaderProgram->link();
+    _normalShaderProgram->link();
 
     _initializeCelestialBodies();
 
@@ -226,7 +231,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                             0,
                             0,
                             "sun1k.jpg",
-                            _defaultShaderProgram);
+                            _normalShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));
