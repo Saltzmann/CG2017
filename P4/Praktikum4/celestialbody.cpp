@@ -3,7 +3,8 @@
 CelestialBody::CelestialBody(QString planetName,
                              double diameter, float axialTilt,
                              float rotationPeriod, float orbitalPeriod,
-                             double orbitalRadius, QString textureFileName) {
+                             double orbitalRadius, QString textureFileName,
+                             QOpenGLShaderProgram *myShader) {
     //Simple start values
     this->_name = planetName;
     this->_diameter = diameter;
@@ -11,6 +12,7 @@ CelestialBody::CelestialBody(QString planetName,
     this->_rotationPeriod = rotationPeriod;
     this->_orbitalPeriod = orbitalPeriod;
     this->_orbitalRadius = orbitalRadius;
+    this->_shader = myShader;
 
     //calculated values
     //Periods sind immer in Tagen angegeben = Zeit für 360 Grad Drehung
@@ -48,7 +50,6 @@ bool CelestialBody::hasCelestialBodiesOrbiting() {
 void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                        const QMatrix4x4 &viewMatrix,
                                        const QMatrix4x4 &projectionMatrix,
-                                       QOpenGLShaderProgram& shader,
                                        unsigned int const &iboLength) {
     //skybox muss 90° umd z gedreht werden
     //perspective ist einzelne Matrix siehe Shader
@@ -67,22 +68,21 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
             x->RenderWithChildren(ctm,
                                   viewMatrix,
                                   projectionMatrix,
-                                  shader,
                                   iboLength);
         }
     }
 
     _getRotationTransformationMatrix(ctm);
 
-    shader.setUniformValue(unifProjMatrix, projectionMatrix);
-    shader.setUniformValue(unifViewMatrix, viewMatrix);
-    shader.setUniformValue(unifModelMatrix, ctm);
+    _shader->setUniformValue(unifProjMatrix, projectionMatrix);
+    _shader->setUniformValue(unifViewMatrix, viewMatrix);
+    _shader->setUniformValue(unifModelMatrix, ctm);
 
     //dann Textur binden
     _qTex->bind();
 
     //an shader übergeben
-    shader.setUniformValue("texture", 0);
+    _shader->setUniformValue("texture", 0);
 
     if(_name == "Skybox") { //frontface wechseln
         glFrontFace(GL_CW);

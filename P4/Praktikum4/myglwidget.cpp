@@ -209,7 +209,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                 -250000,
                                 0,
                                 0,
-                                "milkyway5.jpg");
+                                "milkyway5.jpg",
+                                &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             _galaxy, SLOT(update()));
@@ -220,7 +221,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                             -25.38,
                             0,
                             0,
-                            "sun1k.jpg");
+                            "sun1k.jpg",
+                            &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));
@@ -233,7 +235,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -59,
                                88,
                                800000,
-                               "mercurymap.jpg");
+                               "mercurymap.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -246,7 +249,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                243,
                                225,
                                850000,
-                               "venusmap.jpg");
+                               "venusmap.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -259,7 +263,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -1,
                                365.25,
                                900000,
-                               "earthmap1k.jpg");
+                               "earthmap1k.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -272,7 +277,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                              -27,
                              27,
                              12000,
-                             "moonmap1k.jpg");
+                             "moonmap1k.jpg",
+                             &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -285,7 +291,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -1,
                                687,
                                950000,
-                               "mars_1k_color.jpg");
+                               "mars_1k_color.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -298,7 +305,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                               -0.32,
                               0.32,
                               5000,
-                              "phobosbump.jpg");
+                              "phobosbump.jpg",
+                              &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -311,7 +319,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                               -1.26,
                               1.26,
                               6000,
-                              "deimosbump.jpg");
+                              "deimosbump.jpg",
+                              &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -324,7 +333,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -0.42,
                                4333,
                                1200000,
-                               "jupiter2_1k.jpg");
+                               "jupiter2_1k.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -337,7 +347,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -0.42,
                                10752,
                                1500000,
-                               "saturnmap.jpg");
+                               "saturnmap.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -350,7 +361,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                0.72,
                                30664,
                                1750000,
-                               "uranusmap.jpg");
+                               "uranusmap.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -363,7 +375,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                                -0.67,
                                60142,
                                1900000,
-                               "neptunemap.jpg");
+                               "neptunemap.jpg",
+                               &_shaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -433,7 +446,6 @@ void MyGLWidget::paintGL() {
     _galaxy->RenderWithChildren(modelMatrix,
                                 viewMatrix,
                                 projectionMatrix,
-                                _shaderProgram,
                                 _iboLength);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
