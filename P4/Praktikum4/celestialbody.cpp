@@ -82,6 +82,7 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     int unifModelMatrix = 2;
 
     //Matrix ops fertig nun shader
+    _shader->bind();
 
     // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
     int attrVertices = 0;
@@ -131,6 +132,9 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     if(hasTextureCoords) {
         _shader->disableAttributeArray(attrTexCoords);
     }
+
+    //Shader lösen
+    _shader->release();
 
     // Löse die Textur aus dem OpenGL-Kontext
     _qTex->release();

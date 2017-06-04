@@ -50,7 +50,9 @@ private:
     size_t _stride;
 
     //Shader
-    QOpenGLShaderProgram _shaderProgram;
+    QOpenGLShaderProgram* _defaultShaderProgram;
+    QOpenGLShaderProgram* _normalShaderProgram;
+    QOpenGLShaderProgram* _testShaderProgram;
 
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;

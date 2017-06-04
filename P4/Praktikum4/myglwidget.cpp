@@ -17,6 +17,10 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     _viewDirection = QVector3D(0.f, 0.f, 1.f);
     _rightVector = QVector3D(1.f, 0.f, 0.f);
 
+    _defaultShaderProgram = new QOpenGLShaderProgram();
+    _normalShaderProgram = new QOpenGLShaderProgram();
+    _testShaderProgram = new QOpenGLShaderProgram();
+
     //Fürs Keyboard
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
@@ -141,11 +145,11 @@ void MyGLWidget::initializeGL() {
     _myTimer = new QTimer(this);    
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
-    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
-    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
+    _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
+    _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
 
     // Kompiliere und linke die Shader-Programme
-    _shaderProgram.link();
+    _defaultShaderProgram->link();
 
     _initializeCelestialBodies();
 
@@ -210,7 +214,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                 0,
                                 0,
                                 "milkyway5.jpg",
-                                &_shaderProgram);
+                                _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             _galaxy, SLOT(update()));
@@ -222,7 +226,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                             0,
                             0,
                             "sun1k.jpg",
-                            &_shaderProgram);
+                            _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));
@@ -236,7 +240,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                88,
                                800000,
                                "mercurymap.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -250,7 +254,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                225,
                                850000,
                                "venusmap.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -264,7 +268,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                365.25,
                                900000,
                                "earthmap1k.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -278,7 +282,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                              27,
                              12000,
                              "moonmap1k.jpg",
-                             &_shaderProgram);
+                             _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -292,7 +296,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                687,
                                950000,
                                "mars_1k_color.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -306,7 +310,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                               0.32,
                               5000,
                               "phobosbump.jpg",
-                              &_shaderProgram);
+                              _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -320,7 +324,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                               1.26,
                               6000,
                               "deimosbump.jpg",
-                              &_shaderProgram);
+                              _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -334,7 +338,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                4333,
                                1200000,
                                "jupiter2_1k.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -348,7 +352,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                10752,
                                1500000,
                                "saturnmap.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -362,7 +366,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                30664,
                                1750000,
                                "uranusmap.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -376,7 +380,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                60142,
                                1900000,
                                "neptunemap.jpg",
-                               &_shaderProgram);
+                               _defaultShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -407,7 +411,6 @@ void MyGLWidget::paintGL() {
 
     // Mache die Buffer im OpenGL-Kontext verfügbar
     //sollte gehen da immer die gleichen
-    _shaderProgram.bind();
     _vbo.bind();
     _ibo.bind();
 
@@ -433,11 +436,8 @@ void MyGLWidget::paintGL() {
                                 _stride,
                                 _hasTextureCoords);
 
-
     _vbo.release();
     _ibo.release();
-    // Löse das Shader-Programm
-    _shaderProgram.release();
 
     this->update();
 }
