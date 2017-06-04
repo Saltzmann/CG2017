@@ -18,8 +18,8 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     _rightVector = QVector3D(1.f, 0.f, 0.f);
 
     _defaultShaderProgram = new QOpenGLShaderProgram();
-    _normalShaderProgram = new QOpenGLShaderProgram();
-    _testShaderProgram = new QOpenGLShaderProgram();
+    _heatShimmerShaderProgram = new QOpenGLShaderProgram();
+    //_testShaderProgram = new QOpenGLShaderProgram();
 
     //Fürs Keyboard
     setFocusPolicy(Qt::StrongFocus);
@@ -149,12 +149,12 @@ void MyGLWidget::initializeGL() {
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
-    _normalShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/norm330.vert");
-    _normalShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/norm330.frag");
+    _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
+    _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/heatshimmer330.frag");
 
     // Kompiliere und linke die Shader-Programme
     _defaultShaderProgram->link();
-    _normalShaderProgram->link();
+    _heatShimmerShaderProgram->link();
 
     _initializeCelestialBodies();
 
@@ -231,7 +231,8 @@ void MyGLWidget::_initializeCelestialBodies() {
                             0,
                             0,
                             "sun1k.jpg",
-                            _normalShaderProgram);
+                            _heatShimmerShaderProgram,
+                            "heatshimmer1.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));

@@ -26,7 +26,8 @@ private:
     double _orbitalRadius;
     //general
     QVector<CelestialBody*> Orbiting;
-    QOpenGLTexture* _qTex;
+    QOpenGLTexture* _mainTexture;
+    QOpenGLTexture* _secondaryTexture;
     QOpenGLShaderProgram* _shader;
     //fixed calculated values (for performance)
     float _rotationalAnglePerTick;
@@ -36,15 +37,17 @@ private:
     float _currentRotationalAngle;
 
     //methods
-    void _setTexture(QString filename);
+    void _setMainTexture(QString filename);
+    void _setSecondaryTexture(QString filename);
     void _getOrbitalTransformationMatrix(QMatrix4x4 &matrix);
     void _getRotationTransformationMatrix(QMatrix4x4 &matrix);
 public:
     CelestialBody(QString planetName,
                   double diameter, float axialTilt,
                   float rotationPeriod, float orbitalPeriod,
-                  double orbitalRadius, QString textureFileName,
-                  QOpenGLShaderProgram* myShader);
+                  double orbitalRadius, QString mainTextureFileName,
+                  QOpenGLShaderProgram* myShader,
+                  QString secondaryTextureFileName = "");
     void addOrbitingCelestialBody(CelestialBody* child);
     bool hasCelestialBodiesOrbiting();
     void RenderWithChildren(QMatrix4x4 ctm,

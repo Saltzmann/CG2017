@@ -1,10 +1,14 @@
 #include "celestialbody.h"
 
 CelestialBody::CelestialBody(QString planetName,
-                             double diameter, float axialTilt,
-                             float rotationPeriod, float orbitalPeriod,
-                             double orbitalRadius, QString textureFileName,
-                             QOpenGLShaderProgram *myShader) {
+                             double diameter,
+                             float axialTilt,
+                             float rotationPeriod,
+                             float orbitalPeriod,
+                             double orbitalRadius,
+                             QString mainTextureFileName,
+                             QOpenGLShaderProgram *myShader,
+                             QString secondaryTextureFileName) {
     //Simple start values
     this->_name = planetName;
     this->_diameter = diameter;
@@ -33,7 +37,13 @@ CelestialBody::CelestialBody(QString planetName,
     //qDebug() << "_orbitalAnglePerTick : " << _orbitalAnglePerTick;
 
     //others
-    _setTexture(textureFileName);
+    _mainTexture = nullptr;
+    _secondaryTexture = nullptr;
+
+    _setMainTexture(mainTextureFileName);
+    if(secondaryTextureFileName != "") {
+        _setSecondaryTexture(secondaryTextureFileName);
+    }
     _currentOrbitalAngle = 0.f;
     _currentRotationalAngle = 0.f;
 }
@@ -110,10 +120,16 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     _shader->setUniformValue(unifModelMatrix, ctm);
 
     //dann Textur binden
-    _qTex->bind();
+    _mainTexture->bind(0);
+    if(_secondaryTexture != nullptr) {
+        _secondaryTexture->bind(1);
+    }
 
     //an shader übergeben
-    _shader->setUniformValue("texture", 0);
+    _shader->setUniformValue("diffuseMap", 0);
+    if(_secondaryTexture != nullptr) {
+        _shader->setUniformValue("distortionMap", 1);
+    }
 
     if(_name == "Skybox") { //frontface wechseln
         glFrontFace(GL_CW);
@@ -137,16 +153,25 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     _shader->release();
 
     // Löse die Textur aus dem OpenGL-Kontext
-    _qTex->release();
+    _mainTexture->release();
 }
 
 //PRIVATE METHODS
-void CelestialBody::_setTexture(QString filename) {
-    _qTex = new QOpenGLTexture(QImage(":/" + filename).mirrored());
-    _qTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    _qTex->setMagnificationFilter(QOpenGLTexture::Linear);
+void CelestialBody::_setMainTexture(QString filename) {
+    _mainTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
+    _mainTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    _mainTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
-    Q_ASSERT(_qTex->textureId() != 0);
+    Q_ASSERT(_mainTexture->textureId() != 0);
+}
+
+void CelestialBody::_setSecondaryTexture(QString filename) {
+    _secondaryTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
+    _secondaryTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    _secondaryTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+    _secondaryTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
+    Q_ASSERT(_secondaryTexture->textureId() != 0);
 }
 
 void CelestialBody::update() {
