@@ -35,7 +35,6 @@ private:
 
     //Planet Stuff
     CelestialBody* _galaxy;
-    CelestialBody* sun;
 
     //Model Stuff
     QOpenGLBuffer _vbo;
@@ -45,9 +44,9 @@ private:
     GLuint* _indexData; // GLuint statt GLubyte, da viele Modelle groß sind
     unsigned int _vboLength;
     unsigned int _iboLength;
-    unsigned char _VertOffset;
-    unsigned char _normOffset;
-    unsigned char _TexCoordOffset;
+    unsigned short _vertOffset;
+    unsigned short _normOffset;
+    unsigned short _texCoordOffset;
     size_t _stride;
 
     //Shader

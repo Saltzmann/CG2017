@@ -50,7 +50,12 @@ public:
     void RenderWithChildren(QMatrix4x4 ctm,
                             QMatrix4x4 const &viewMatrix,
                             QMatrix4x4 const &projectionMatrix,
-                            unsigned int const &iboLength);
+                            unsigned int const &iboLength,
+                            unsigned short const &vertOffset,
+                            unsigned short const &normOffset,
+                            unsigned short const &texCoordOffset,
+                            size_t const &stride,
+                            bool const &hasTextureCoords);
 public slots:
    void update();
 };

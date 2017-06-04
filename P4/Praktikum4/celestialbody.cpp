@@ -50,15 +50,12 @@ bool CelestialBody::hasCelestialBodiesOrbiting() {
 void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                        const QMatrix4x4 &viewMatrix,
                                        const QMatrix4x4 &projectionMatrix,
-                                       unsigned int const &iboLength) {
-    //skybox muss 90° umd z gedreht werden
-    //perspective ist einzelne Matrix siehe Shader
-
-    //orbTrans auf Stack
-    int unifProjMatrix = 0;
-    int unifViewMatrix = 1;
-    int unifModelMatrix = 2;
-
+                                       unsigned int const &iboLength,
+                                       unsigned short const &vertOffset,
+                                       unsigned short const &normOffset,
+                                       unsigned short const &texCoordOffset,
+                                       size_t const &stride,
+                                       bool const &hasTextureCoords) {
     //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
     _getOrbitalTransformationMatrix(ctm);
 
@@ -68,11 +65,37 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
             x->RenderWithChildren(ctm,
                                   viewMatrix,
                                   projectionMatrix,
-                                  iboLength);
+                                  iboLength,
+                                  vertOffset,
+                                  normOffset,
+                                  texCoordOffset,
+                                  stride,
+                                  hasTextureCoords);
         }
     }
 
     _getRotationTransformationMatrix(ctm);
+
+    //Matrix Locations
+    int unifProjMatrix = 0;
+    int unifViewMatrix = 1;
+    int unifModelMatrix = 2;
+
+    //Matrix ops fertig nun shader
+
+    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
+    int attrVertices = 0;
+    // Lokalisiere bzw. definiere die Schnittstelle für die Normalen
+    int attrNorms = 1;
+    // Lokalisiere bzw. definiere die Schnittstelle für die Textur
+    int attrTexCoords = 2;
+
+    // Fülle die Attribute-Buffer mit den korrekten Daten
+    _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride);
+    _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride);
+    if(hasTextureCoords) {
+        _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride);
+    }
 
     _shader->setUniformValue(unifProjMatrix, projectionMatrix);
     _shader->setUniformValue(unifViewMatrix, viewMatrix);

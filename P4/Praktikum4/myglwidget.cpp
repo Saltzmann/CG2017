@@ -182,15 +182,15 @@ void MyGLWidget::_initializeVBOs() {
     }
 
     if(_hasTextureCoords) {
-        _VertOffset = 0;
-        _normOffset = _VertOffset + 4 * sizeof(GLfloat);
-        _TexCoordOffset = _VertOffset + 8 * sizeof(GLfloat);
+        _vertOffset = 0;
+        _normOffset = _vertOffset + 4 * sizeof(GLfloat);
+        _texCoordOffset = _vertOffset + 8 * sizeof(GLfloat);
         _stride = 12 * sizeof(GLfloat);
     }
     else {
-        _VertOffset = 0;
-        _normOffset = _VertOffset + 4 * sizeof(GLfloat);
-        _TexCoordOffset = -1;
+        _vertOffset = 0;
+        _normOffset = _vertOffset + 4 * sizeof(GLfloat);
+        _texCoordOffset = -1;
         _stride = 8 * sizeof(GLfloat);
     }
 
@@ -424,13 +424,6 @@ void MyGLWidget::paintGL() {
         _shaderProgram.enableAttributeArray(attrTexCoords);
     }
 
-    // Fülle die Attribute-Buffer mit den korrekten Daten
-    _shaderProgram.setAttributeBuffer(attrVertices, GL_FLOAT, _VertOffset, 4, _stride);
-    _shaderProgram.setAttributeBuffer(attrNorms, GL_FLOAT, _normOffset, 4, _stride);
-    if(_hasTextureCoords) {
-        _shaderProgram.setAttributeBuffer(attrTexCoords, GL_FLOAT, _TexCoordOffset, 4, _stride);
-    }
-
     QMatrix4x4 projectionMatrix, viewMatrix, modelMatrix;
 
     modelMatrix.setToIdentity();
@@ -446,7 +439,12 @@ void MyGLWidget::paintGL() {
     _galaxy->RenderWithChildren(modelMatrix,
                                 viewMatrix,
                                 projectionMatrix,
-                                _iboLength);
+                                _iboLength,
+                                _vertOffset,
+                                _normOffset,
+                                _texCoordOffset,
+                                _stride,
+                                _hasTextureCoords);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shaderProgram.disableAttributeArray(attrVertices);
