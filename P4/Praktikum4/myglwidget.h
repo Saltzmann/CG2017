@@ -32,6 +32,7 @@ private:
     QVector2D _oldMousePosition;
 
     QTimer* _myTimer;
+    QTimer* _secondTimer;
 
     //Planet Stuff
     CelestialBody* _galaxy;
@@ -56,6 +57,8 @@ private:
 
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
+    unsigned int _fpsCounter;
+    float _avgFPS;
 
     //Hilfsfunktionen
     void _initializeVBOs();
@@ -70,8 +73,10 @@ public:
     void wheelEvent(QWheelEvent *event);    
 public slots:
     void onMessageLogged(QOpenGLDebugMessage message);
+    void resetFPSCounter();
 signals:
     void sendSpeedFactor(int value);
+    void sendFPSValue(int value);
 };
 
 #endif // MYGLWIDGET_H

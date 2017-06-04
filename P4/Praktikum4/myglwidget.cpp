@@ -33,6 +33,9 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     qDebug().noquote() << "Renderable Type:" << QMetaEnum::fromType<QSurfaceFormat::RenderableType>().valueToKey(fmt.renderableType());
     qDebug().noquote() << "Swap Behavior:" << QMetaEnum::fromType<QSurfaceFormat::SwapBehavior>().valueToKey(fmt.swapBehavior());
     qDebug() << "Swap Interval:" << fmt.swapInterval();
+
+    _fpsCounter = 0;
+
 }
 
 void MyGLWidget::wheelEvent(QWheelEvent *event) {
@@ -142,7 +145,12 @@ void MyGLWidget::initializeGL() {
     glClearDepth(1.0f);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f); //weiß, damit man den Unterschied zur Skybox sieht
 
-    _myTimer = new QTimer(this);    
+    _myTimer = new QTimer(this);
+    _secondTimer = new QTimer(this);
+
+    //fpsCounter
+    connect(_secondTimer, SIGNAL(timeout()),
+            this, SLOT(resetFPSCounter()));
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
@@ -159,6 +167,7 @@ void MyGLWidget::initializeGL() {
     _initializeCelestialBodies();
 
     _myTimer->start(TICKRATE);
+    _secondTimer->start(1000);
 
     _fillBuffers();
 }
@@ -445,6 +454,9 @@ void MyGLWidget::paintGL() {
     _vbo.release();
     _ibo.release();
 
+    _fpsCounter++;
+    emit sendFPSValue(_actualFPS);
+    //qDebug() << "FPS: " << _fpsCounter;
     this->update();
 }
 
@@ -455,4 +467,10 @@ void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
        return;
     }
     qDebug() << message;
+}
+
+void MyGLWidget::resetFPSCounter() {
+    //qDebug() << "FPS reset";
+    _actualFPS = _fpsCounter;
+    _fpsCounter = 0;
 }
