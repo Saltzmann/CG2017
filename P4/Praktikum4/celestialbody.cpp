@@ -90,6 +90,13 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     // Lokalisiere bzw. definiere die Schnittstelle für die Textur
     int attrTexCoords = 2;
 
+    // Aktiviere die Verwendung der Attribute-Arrays
+    _shader->enableAttributeArray(attrVertices);
+    _shader->enableAttributeArray(attrNorms);
+    if(hasTextureCoords) {
+        _shader->enableAttributeArray(attrTexCoords);
+    }
+
     // Fülle die Attribute-Buffer mit den korrekten Daten
     _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride);
     _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride);
@@ -116,6 +123,13 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
 
     if(_name == "Skybox") { //frontface zurück wechseln
         glFrontFace(GL_CCW);
+    }
+
+    // Deaktiviere die Verwendung der Attribute-Arrays
+    _shader->disableAttributeArray(attrVertices);
+    _shader->disableAttributeArray(attrNorms);
+    if(hasTextureCoords) {
+        _shader->disableAttributeArray(attrTexCoords);
     }
 
     // Löse die Textur aus dem OpenGL-Kontext

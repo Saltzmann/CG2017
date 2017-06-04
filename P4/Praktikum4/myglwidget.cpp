@@ -411,19 +411,6 @@ void MyGLWidget::paintGL() {
     _vbo.bind();
     _ibo.bind();
 
-    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
-    int attrVertices = 0;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Normalen
-    int attrNorms = 1;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Textur
-    int attrTexCoords = 2;
-    // Aktiviere die Verwendung der Attribute-Arrays
-    _shaderProgram.enableAttributeArray(attrVertices);
-    _shaderProgram.enableAttributeArray(attrNorms);
-    if(_hasTextureCoords) {
-        _shaderProgram.enableAttributeArray(attrTexCoords);
-    }
-
     QMatrix4x4 projectionMatrix, viewMatrix, modelMatrix;
 
     modelMatrix.setToIdentity();
@@ -446,12 +433,6 @@ void MyGLWidget::paintGL() {
                                 _stride,
                                 _hasTextureCoords);
 
-    // Deaktiviere die Verwendung der Attribute-Arrays
-    _shaderProgram.disableAttributeArray(attrVertices);
-    _shaderProgram.disableAttributeArray(attrNorms);
-    if(_hasTextureCoords) {
-        _shaderProgram.disableAttributeArray(attrTexCoords);
-    }
 
     _vbo.release();
     _ibo.release();
