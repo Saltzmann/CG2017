@@ -141,8 +141,8 @@ void MyGLWidget::initializeGL() {
     _myTimer = new QTimer(this);    
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
-    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/norm330.vert");
-    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/norm330.frag");
+    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
+    _shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
 
     // Kompiliere und linke die Shader-Programme
     _shaderProgram.link();

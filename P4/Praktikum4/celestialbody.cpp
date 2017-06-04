@@ -27,8 +27,8 @@ CelestialBody::CelestialBody(QString planetName,
         this->_orbitalAnglePerTick = 0.0;
     }
 
-    qDebug() << "_rotationalAnglePerTick : " << _rotationalAnglePerTick;
-    qDebug() << "_orbitalAnglePerTick : " << _orbitalAnglePerTick;
+    //qDebug() << "_rotationalAnglePerTick : " << _rotationalAnglePerTick;
+    //qDebug() << "_orbitalAnglePerTick : " << _orbitalAnglePerTick;
 
     //others
     _setTexture(textureFileName);
