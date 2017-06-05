@@ -38,12 +38,14 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     myglwidget.cpp \
     modelloader.cpp \
-    celestialbody.cpp
+    celestialbody.cpp \
+    sun.cpp
 
 HEADERS  += mainwindow.h \
     myglwidget.h \
     modelloader.h \
-    celestialbody.h
+    celestialbody.h \
+    sun.h
 
 FORMS    += mainwindow.ui
 

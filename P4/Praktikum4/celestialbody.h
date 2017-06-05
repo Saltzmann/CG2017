@@ -15,7 +15,7 @@
 class CelestialBody : public QObject
 {
     Q_OBJECT
-private:
+protected:
     //Atrributes
     //initial
     QString _name;

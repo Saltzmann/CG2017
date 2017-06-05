@@ -19,6 +19,7 @@
 #include <modelloader.h>
 #include <QOpenGLTexture>
 #include <celestialbody.h>
+#include <sun.h>
 
 class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
