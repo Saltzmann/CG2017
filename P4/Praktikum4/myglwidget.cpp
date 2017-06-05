@@ -158,7 +158,7 @@ void MyGLWidget::initializeGL() {
 
     // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
     _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
-    _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/test330.frag");
+    _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/heatshimmer330.frag");
 
     // Kompiliere und linke die Shader-Programme
     _defaultShaderProgram->link();

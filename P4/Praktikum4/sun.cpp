@@ -107,7 +107,8 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     _mainTexture->release();
     _secondaryTexture->release();
 
-    _distortionCounter += 0.0002;
+    _distortionCounter += 0.2;//0002;
+    //qDebug() << _distortionCounter;
 }
 
 void Sun::_setSecondaryTexture(QString filename) {

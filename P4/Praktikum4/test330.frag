@@ -10,7 +10,7 @@ uniform sampler2D diffuseMap;
 uniform sampler2D distortionMap;
 //layout(location = 0)in vec4 col;
 layout(location = 1)in vec4 texC;
-//layout(location = 2)in float time;
+layout(location = 2)in float time;
 layout(location = 0)out vec4 fragColor; // must be at 0
 
 void main() {
@@ -21,6 +21,6 @@ void main() {
         gl_FragColor = texture2D(diffuseMap, vec2(texC.xy));
     }
     else {
-        gl_FragColor = texture2D(distortionMap, vec2(texC.xy));
+        gl_FragColor = texture2D(distortionMap, vec2(texC.xy) *  time);
     }
 }
