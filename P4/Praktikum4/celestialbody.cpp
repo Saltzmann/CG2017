@@ -7,8 +7,7 @@ CelestialBody::CelestialBody(QString planetName,
                              float orbitalPeriod,
                              double orbitalRadius,
                              QString mainTextureFileName,
-                             QOpenGLShaderProgram *myShader,
-                             QString secondaryTextureFileName) {
+                             QOpenGLShaderProgram *myShader) {
     //Simple start values
     this->_name = planetName;
     this->_diameter = diameter;
@@ -38,12 +37,9 @@ CelestialBody::CelestialBody(QString planetName,
 
     //others
     _mainTexture = nullptr;
-    _secondaryTexture = nullptr;
 
     _setMainTexture(mainTextureFileName);
-    if(secondaryTextureFileName != "") {
-        _setSecondaryTexture(secondaryTextureFileName);
-    }
+
     _currentOrbitalAngle = 0.f;
     _currentRotationalAngle = 0.f;
 }
@@ -122,15 +118,9 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
 
     //dann Textur binden
     _mainTexture->bind(0);
-    if(_secondaryTexture != nullptr) {
-        _secondaryTexture->bind(1);
-    }
 
     //an shader übergeben
     _shader->setUniformValue("diffuseMap", 0);
-    if(_secondaryTexture != nullptr) {
-        _shader->setUniformValue("distortionMap", 1);
-    }
 
     if(_name == "Skybox") { //frontface wechseln
         glFrontFace(GL_CW);
@@ -155,9 +145,6 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
 
     // Löse die Textur aus dem OpenGL-Kontext
     _mainTexture->release();
-    if(_secondaryTexture != nullptr) {
-        _secondaryTexture->release();
-    }
 }
 
 //PRIVATE METHODS
@@ -167,15 +154,6 @@ void CelestialBody::_setMainTexture(QString filename) {
     _mainTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_mainTexture->textureId() != 0);
-}
-
-void CelestialBody::_setSecondaryTexture(QString filename) {
-    _secondaryTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
-    _secondaryTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    _secondaryTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-    _secondaryTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
-    // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
-    Q_ASSERT(_secondaryTexture->textureId() != 0);
 }
 
 void CelestialBody::update() {
