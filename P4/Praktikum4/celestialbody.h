@@ -50,7 +50,7 @@ public:
                   QString secondaryTextureFileName = "");
     void addOrbitingCelestialBody(CelestialBody* child);
     bool hasCelestialBodiesOrbiting();
-    void RenderWithChildren(QMatrix4x4 ctm,
+    virtual void RenderWithChildren(QMatrix4x4 ctm,
                             QMatrix4x4 const &viewMatrix,
                             QMatrix4x4 const &projectionMatrix,
                             unsigned int const &iboLength,

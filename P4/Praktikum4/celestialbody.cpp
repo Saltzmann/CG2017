@@ -66,6 +66,7 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                        unsigned short const &texCoordOffset,
                                        size_t const &stride,
                                        bool const &hasTextureCoords) {
+    //qDebug() << "RenderWithChildren: CelBod";
     //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
     _getOrbitalTransformationMatrix(ctm);
 

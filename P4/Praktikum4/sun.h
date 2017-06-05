@@ -17,8 +17,8 @@ public:
         double orbitalRadius, QString mainTextureFileName,
         QOpenGLShaderProgram* myShader,
         QString secondaryTextureFileName = "");
-/*
-    void RenderWithChildren(QMatrix4x4 ctm,
+
+    virtual void RenderWithChildren(QMatrix4x4 ctm,
                             QMatrix4x4 const &viewMatrix,
                             QMatrix4x4 const &projectionMatrix,
                             unsigned int const &iboLength,
@@ -27,7 +27,6 @@ public:
                             unsigned short const &texCoordOffset,
                             size_t const &stride,
                             bool const &hasTextureCoords);
-*/
 };
 
 #endif // SUN_H

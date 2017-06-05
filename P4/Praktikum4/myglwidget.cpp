@@ -234,14 +234,14 @@ void MyGLWidget::_initializeCelestialBodies() {
             _galaxy, SLOT(update()));
 
     sun = new Sun("Sun",
-                            1392684,
-                            7.25,
-                            -25.38,
-                            0,
-                            0,
-                            "sun1k.jpg",
-                            _heatShimmerShaderProgram,
-                            "heatshimmer1.jpg");
+                   1392684,
+                   7.25,
+                   -25.38,
+                   0,
+                   0,
+                   "sun1k.jpg",
+                   _heatShimmerShaderProgram,
+                   "heatshimmer1.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));

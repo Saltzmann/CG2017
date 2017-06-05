@@ -20,7 +20,6 @@ Sun::Sun(QString planetName,
     //_distortionCounter = 0.f;
 }
 
-/*
 void Sun::RenderWithChildren(QMatrix4x4 ctm,
                         QMatrix4x4 const &viewMatrix,
                         QMatrix4x4 const &projectionMatrix,
@@ -30,7 +29,7 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
                         unsigned short const &texCoordOffset,
                         size_t const &stride,
                         bool const &hasTextureCoords) {
-
+    //qDebug() << "RenderWithChildren: Sun";
     //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
     _getOrbitalTransformationMatrix(ctm);
 
@@ -48,8 +47,6 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
                                   hasTextureCoords);
         }
     }
-
-    qDebug() << _distortionCounter;
 
     _getRotationTransformationMatrix(ctm);
 
@@ -88,15 +85,26 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
 
     //dann Textur binden
     _mainTexture->bind(0);
-    _shader->setUniformValue("diffuseMap", 0);
-    _secondaryTexture->bind(1);
-    _shader->setUniformValue("distortionMap", 1);
+    if(_secondaryTexture != nullptr) {
+        _secondaryTexture->bind(1);
+    }
 
-    //an shader übergeben)
-    _shader->setAttributeValue("time", _distortionCounter);
+    //an shader übergeben
+    _shader->setUniformValue("diffuseMap", 0);
+    if(_secondaryTexture != nullptr) {
+        _shader->setUniformValue("distortionMap", 1);
+    }
+
+    if(_name == "Skybox") { //frontface wechseln
+        glFrontFace(GL_CW);
+    }
 
     //zeichnen lassen
     glDrawElements(GL_TRIANGLES, iboLength, GL_UNSIGNED_INT, 0);
+
+    if(_name == "Skybox") { //frontface zurück wechseln
+        glFrontFace(GL_CCW);
+    }
 
     // Deaktiviere die Verwendung der Attribute-Arrays
     _shader->disableAttributeArray(attrVertices);
@@ -109,12 +117,15 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     _shader->release();
 
     // Löse die Textur aus dem OpenGL-Kontext
-    _mainTexture->release(0);
-    _secondaryTexture->release(1);
+    _mainTexture->release();
+    if(_secondaryTexture != nullptr) {
+        _secondaryTexture->release();
+    }
 
-    _distortionCounter += 0.0002;
+   // _distortionCounter += 0.0002;
 }
 
+/*
 void Sun::_setSecondaryTexture(QString filename) {
     _secondaryTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
     _secondaryTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
@@ -123,5 +134,4 @@ void Sun::_setSecondaryTexture(QString filename) {
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_secondaryTexture->textureId() != 0);
 }
-
 */
