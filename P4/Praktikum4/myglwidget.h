@@ -54,7 +54,7 @@ private:
     //Shader
     QOpenGLShaderProgram* _defaultShaderProgram;
     QOpenGLShaderProgram* _heatShimmerShaderProgram;
-    QOpenGLShaderProgram* _testShaderProgram;
+    QOpenGLShaderProgram* _phongShaderProgram;
 
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;

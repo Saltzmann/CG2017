@@ -111,7 +111,7 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     _secondaryTexture->release();
 
     _distortionCounterX += 2;
-    _distortionCounterY += 0.00025;
+    _distortionCounterY += 0.00075;
 
     //qDebug() << "diststeps" << _distortionStepsX;
     //qDebug() << "distcountx" << _distortionCounterX;

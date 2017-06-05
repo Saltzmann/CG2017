@@ -55,5 +55,4 @@ RESOURCES += \
 
 DISTFILES += \
     norm130.fsh \
-    norm330.vsh \
-    heatshimmer330.frag
+    norm330.vsh

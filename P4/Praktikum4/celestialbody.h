@@ -4,7 +4,8 @@
 #define TICKS_PER_SECOND 60
 #define SIMYEARS_PER_TICK 0.001/(double)TICKS_PER_SECOND
 #define SCALE_FACTOR 1/4879.4 //vielfaches von Merkur
-
+//#define SKYBOX_DIAMETER 25000000
+#define SKYBOX_DIAMETER 10000000
 
 #include <QOpenGLTexture>
 #include <QVector>

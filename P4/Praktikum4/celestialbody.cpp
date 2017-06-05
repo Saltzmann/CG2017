@@ -87,6 +87,7 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     int unifProjMatrix = 0;
     int unifViewMatrix = 1;
     int unifModelMatrix = 2;
+    int unifNormMatrix = 3;
 
     //Matrix ops fertig nun shader
     _shader->bind();
@@ -115,6 +116,30 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     _shader->setUniformValue(unifProjMatrix, projectionMatrix);
     _shader->setUniformValue(unifViewMatrix, viewMatrix);
     _shader->setUniformValue(unifModelMatrix, ctm);
+
+
+        _shader->setUniformValue(unifNormMatrix,  (viewMatrix * ctm).normalMatrix());
+        _shader->setUniformValue(4, (viewMatrix * QVector4D(0.f, 0.f, 0.f, 1.f)));
+        _shader->setUniformValue(5, QVector3D(0.75f, 0.75f, 0.4f));
+        _shader->setUniformValue(6, QVector3D(0.7f, 0.7f, 0.7f));
+        _shader->setUniformValue(7, QVector3D(0.05f, 0.05f, 0.05f));
+        _shader->setUniformValue(8, QVector3D(1.f, 1.f, 0.75f));
+        _shader->setUniformValue(9, 3.f);
+        _shader->setUniformValue(10, 0.f);
+        if(_name == "Skybox") {
+            _shader->setUniformValue(11, -1.f);
+        }
+        else {
+            _shader->setUniformValue(11, 1.f);
+        }
+        _shader->setUniformValue(12, float(SKYBOX_DIAMETER/2.f * SCALE_FACTOR));
+        //Werte für Galaxiegröße 25 000 000
+        //_shader->setUniformValue(13, 0.25f);
+        //_shader->setUniformValue(14, 1.5f);
+        //Werte für Galaxiegröß  10 000 000
+        _shader->setUniformValue(13, 0.35f);
+        _shader->setUniformValue(14, 3.f);
+
 
     //dann Textur binden
     _mainTexture->bind(0);

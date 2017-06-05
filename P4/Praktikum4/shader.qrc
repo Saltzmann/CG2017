@@ -8,5 +8,7 @@
         <file>norm330.vert</file>
         <file>heatshimmer330.frag</file>
         <file>test330.frag</file>
+        <file>phong330.frag</file>
+        <file>phong330.vert</file>
     </qresource>
 </RCC>

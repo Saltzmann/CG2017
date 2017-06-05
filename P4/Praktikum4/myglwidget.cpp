@@ -2,7 +2,7 @@
 
 #define UPDATE_RATE 60
 #define INITIAL_CAMERA_OFFSET 500.0f
-#define INITIAL_SPEED_FACTOR 1
+#define INITIAL_SPEED_FACTOR 5
 #define TICKRATE 1000/UPDATE_RATE
 #define CAMERA_TURN_SPEED 1.f/5.f
 
@@ -14,12 +14,12 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
                                         {
     _speedFactor = INITIAL_SPEED_FACTOR;
     _viewOffset = QVector3D(0.f, 0.f, INITIAL_CAMERA_OFFSET);
-    _viewDirection = QVector3D(0.f, 0.f, 1.f);
+    _viewDirection = QVector3D(0.f, 0.f, -1.f);
     _rightVector = QVector3D(1.f, 0.f, 0.f);
 
     _defaultShaderProgram = new QOpenGLShaderProgram();
     _heatShimmerShaderProgram = new QOpenGLShaderProgram();
-    //_testShaderProgram = new QOpenGLShaderProgram();
+    _phongShaderProgram = new QOpenGLShaderProgram();
 
     //Fürs Keyboard
     setFocusPolicy(Qt::StrongFocus);
@@ -106,7 +106,6 @@ void MyGLWidget::keyPressEvent(QKeyEvent *event) {
     }
     else if(event->key() == (int)Qt::Key_N) { //soft reset
         _viewDirection = QVector3D(0.f, 0.f, -1.f);
-        _speedFactor = INITIAL_SPEED_FACTOR;
     }
     else if(event->key() == Qt::Key_H) {
         if(_myTimer->isActive()) {
@@ -152,17 +151,22 @@ void MyGLWidget::initializeGL() {
     connect(_secondTimer, SIGNAL(timeout()),
             this, SLOT(resetFPSCounter()));
 
-    // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
+    // default shader
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
     _defaultShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/default330.frag");
 
-    // Lade die Shader-Sourcen aus externen Dateien (ggf. anpassen)
+    //heatshimmer shader
     _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/default330.vert");
     _heatShimmerShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/heatshimmer330.frag");
+
+    //Phong shader
+    _phongShaderProgram->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/phong330.vert");
+    _phongShaderProgram->addShaderFromSourceFile(QOpenGLShader::Fragment, ":/phong330.frag");
 
     // Kompiliere und linke die Shader-Programme
     _defaultShaderProgram->link();
     _heatShimmerShaderProgram->link();
+    _phongShaderProgram->link();
 
     _initializeCelestialBodies();
 
@@ -222,13 +226,13 @@ void MyGLWidget::_initializeCelestialBodies() {
     CelestialBody* moon = nullptr;
 
     _galaxy = new CelestialBody("Skybox",
-                                25000000,
+                                SKYBOX_DIAMETER,
                                 0,
                                 -250000,
                                 0,
                                 0,
                                 "milkyway5.jpg",
-                                _defaultShaderProgram);
+                                _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             _galaxy, SLOT(update()));
@@ -255,7 +259,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                88,
                                800000,
                                "mercurymap.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -269,7 +273,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                225,
                                850000,
                                "venusmap.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -283,7 +287,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                365.25,
                                900000,
                                "earthmap1k.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -297,7 +301,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                              27,
                              12000,
                              "moonmap1k.jpg",
-                             _defaultShaderProgram);
+                             _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -311,7 +315,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                687,
                                950000,
                                "mars_1k_color.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -325,7 +329,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                               0.32,
                               5000,
                               "phobosbump.jpg",
-                              _defaultShaderProgram);
+                              _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -339,7 +343,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                               1.26,
                               6000,
                               "deimosbump.jpg",
-                              _defaultShaderProgram);
+                              _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             moon, SLOT(update()));
@@ -353,7 +357,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                4333,
                                1200000,
                                "jupiter2_1k.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -367,7 +371,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                10752,
                                1500000,
                                "saturnmap.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -381,7 +385,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                30664,
                                1750000,
                                "uranusmap.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
@@ -395,7 +399,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                                60142,
                                1900000,
                                "neptunemap.jpg",
-                               _defaultShaderProgram);
+                               _phongShaderProgram);
 
     connect(_myTimer, SIGNAL(timeout()),
             planet, SLOT(update()));
