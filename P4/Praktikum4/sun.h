@@ -7,7 +7,9 @@
 class Sun : public CelestialBody
 {
 private:
-    float _distortionCounter;
+    float _distortionCounterX;
+    float _distortionCounterY;
+
     QOpenGLTexture* _secondaryTexture;
     void _setSecondaryTexture(QString filename);
 public:

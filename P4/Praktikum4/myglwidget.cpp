@@ -241,7 +241,7 @@ void MyGLWidget::_initializeCelestialBodies() {
                    0,
                    "sun1k.jpg",
                    _heatShimmerShaderProgram,
-                   "heatshimmer1.jpg");
+                   "sun2k.jpg");
 
     connect(_myTimer, SIGNAL(timeout()),
             sun, SLOT(update()));

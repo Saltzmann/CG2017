@@ -16,7 +16,8 @@ Sun::Sun(QString planetName,
     _secondaryTexture = nullptr;
     _setSecondaryTexture(secondaryTextureFileName);
 
-    _distortionCounter = 0.f;
+    _distortionCounterX = 0.f;
+    _distortionCounterY = 0.f;
 }
 
 void Sun::RenderWithChildren(QMatrix4x4 ctm,
@@ -89,6 +90,8 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     //an shader übergeben
     _shader->setUniformValue("diffuseMap", 0);
     _shader->setUniformValue("distortionMap", 1);
+    _shader->setUniformValue("timeX", float(0.001f * sin(_distortionCounterX)));
+    _shader->setUniformValue("timeY", _distortionCounterY);
 
     //zeichnen lassen
     glDrawElements(GL_TRIANGLES, iboLength, GL_UNSIGNED_INT, 0);
@@ -107,15 +110,18 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     _mainTexture->release();
     _secondaryTexture->release();
 
-    _distortionCounter += 0.2;//0002;
-    //qDebug() << _distortionCounter;
+    _distortionCounterX += 2;
+    _distortionCounterY += 0.00025;
+
+    //qDebug() << "diststeps" << _distortionStepsX;
+    //qDebug() << "distcountx" << _distortionCounterX;
 }
 
 void Sun::_setSecondaryTexture(QString filename) {
     _secondaryTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
     _secondaryTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     _secondaryTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-    _secondaryTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+    _secondaryTexture->setWrapMode(QOpenGLTexture::Repeat);
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_secondaryTexture->textureId() != 0);
 }

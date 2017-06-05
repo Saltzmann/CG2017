@@ -2,7 +2,7 @@
 #define CELESTIALBODY_H
 
 #define TICKS_PER_SECOND 60
-#define SIMYEARS_PER_TICK 0.005/(double)TICKS_PER_SECOND
+#define SIMYEARS_PER_TICK 0.001/(double)TICKS_PER_SECOND
 #define SCALE_FACTOR 1/4879.4 //vielfaches von Merkur
 
 
