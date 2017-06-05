@@ -154,6 +154,9 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
 
     // Löse die Textur aus dem OpenGL-Kontext
     _mainTexture->release();
+    if(_secondaryTexture != nullptr) {
+        _secondaryTexture->release();
+    }
 }
 
 //PRIVATE METHODS

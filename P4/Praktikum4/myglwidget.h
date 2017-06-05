@@ -58,7 +58,7 @@ private:
     //The Debug Logger Ladies and Gents
     QOpenGLDebugLogger* debugLogger;
     unsigned int _fpsCounter;
-    float _avgFPS;
+    float _actualFPS;
 
     //Hilfsfunktionen
     void _initializeVBOs();

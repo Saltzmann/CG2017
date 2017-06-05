@@ -7,5 +7,6 @@
         <file>norm330.frag</file>
         <file>norm330.vert</file>
         <file>heatshimmer330.frag</file>
+        <file>test330.frag</file>
     </qresource>
 </RCC>
