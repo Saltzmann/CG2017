@@ -233,7 +233,7 @@ void MyGLWidget::_initializeCelestialBodies() {
     connect(_myTimer, SIGNAL(timeout()),
             _galaxy, SLOT(update()));
 
-    sun = new CelestialBody("Sun",
+    sun = new Sun("Sun",
                             1392684,
                             7.25,
                             -25.38,

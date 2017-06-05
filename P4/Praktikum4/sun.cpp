@@ -12,13 +12,15 @@ Sun::Sun(QString planetName,
                                                            orbitalPeriod,
                                                            orbitalRadius,
                                                            mainTextureFileName,
-                                                           myShader) {
-    _secondaryTexture = nullptr;
-    _setSecondaryTexture(secondaryTextureFileName);
+                                                           myShader,
+                                                           secondaryTextureFileName) {
+    //_secondaryTexture = nullptr;
+    //_setSecondaryTexture(secondaryTextureFileName);
 
-    _distortionCounter = 0.f;
+    //_distortionCounter = 0.f;
 }
 
+/*
 void Sun::RenderWithChildren(QMatrix4x4 ctm,
                         QMatrix4x4 const &viewMatrix,
                         QMatrix4x4 const &projectionMatrix,
@@ -121,3 +123,5 @@ void Sun::_setSecondaryTexture(QString filename) {
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_secondaryTexture->textureId() != 0);
 }
+
+*/
