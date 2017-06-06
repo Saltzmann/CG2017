@@ -28,7 +28,9 @@ public:
                             unsigned short const &normOffset,
                             unsigned short const &texCoordOffset,
                             size_t const &stride,
-                            bool const &hasTextureCoords);
+                            bool const &hasTextureCoords,
+                            float const &passthru1,
+                            float const &passthru2);
 };
 
 #endif // SUN_H

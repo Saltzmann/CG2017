@@ -61,7 +61,9 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                        unsigned short const &normOffset,
                                        unsigned short const &texCoordOffset,
                                        size_t const &stride,
-                                       bool const &hasTextureCoords) {
+                                       bool const &hasTextureCoords,
+                                       float const &linMod,
+                                       float const &expMod) {
     //qDebug() << "RenderWithChildren: CelBod";
     //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
     _getOrbitalTransformationMatrix(ctm);
@@ -77,7 +79,9 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                   normOffset,
                                   texCoordOffset,
                                   stride,
-                                  hasTextureCoords);
+                                  hasTextureCoords,
+                                  linMod,
+                                  expMod);
         }
     }
 
@@ -107,39 +111,39 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     }
 
     // Fülle die Attribute-Buffer mit den korrekten Daten
-    _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride);
-    _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride);
+    _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride); //VertexPositionen
+    _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride); //VertexNormalen
     if(hasTextureCoords) {
-        _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride);
+        _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride); //TexturCoordinaten
     }
 
-    _shader->setUniformValue(unifProjMatrix, projectionMatrix);
-    _shader->setUniformValue(unifViewMatrix, viewMatrix);
-    _shader->setUniformValue(unifModelMatrix, ctm);
+    _shader->setUniformValue(unifProjMatrix, projectionMatrix); //projektionsMatrix (const)
+    _shader->setUniformValue(unifViewMatrix, viewMatrix); //viewMatrix ("const")
+    _shader->setUniformValue(unifModelMatrix, ctm); //modelMatrix (immer abhängig vom gerade zu rendernden Himmelskörper)
 
-
-        _shader->setUniformValue(unifNormMatrix,  (viewMatrix * ctm).normalMatrix());
-        _shader->setUniformValue(4, (viewMatrix * QVector4D(0.f, 0.f, 0.f, 1.f)));
-        _shader->setUniformValue(5, QVector3D(0.75f, 0.75f, 0.4f));
-        _shader->setUniformValue(6, QVector3D(0.7f, 0.7f, 0.7f));
-        _shader->setUniformValue(7, QVector3D(0.05f, 0.05f, 0.05f));
-        _shader->setUniformValue(8, QVector3D(1.f, 1.f, 0.75f));
-        _shader->setUniformValue(9, 3.f);
-        _shader->setUniformValue(10, 0.f);
-        if(_name == "Skybox") {
-            _shader->setUniformValue(11, -1.f);
-        }
-        else {
-            _shader->setUniformValue(11, 1.f);
-        }
-        _shader->setUniformValue(12, float(SKYBOX_DIAMETER/2.f * SCALE_FACTOR));
-        //Werte für Galaxiegröße 25 000 000
-        //_shader->setUniformValue(13, 0.25f);
-        //_shader->setUniformValue(14, 1.5f);
-        //Werte für Galaxiegröß  10 000 000
-        _shader->setUniformValue(13, 0.35f);
-        _shader->setUniformValue(14, 3.f);
-
+    _shader->setUniformValue(unifNormMatrix,  (viewMatrix * ctm).normalMatrix()); //berechnete Normalenmatrix
+    _shader->setUniformValue(4, (viewMatrix * QVector4D(0.f, 0.f, 0.f, 1.f))); //Position der Lichtquelle
+    _shader->setUniformValue(5, QVector3D(0.75f, 0.75f, 0.4f)); //Grundfarbe des Lichts
+    _shader->setUniformValue(6, QVector3D(0.7f, 0.7f, 0.7f)); //Farbe des Objekts - fällt durch Textur weg
+    _shader->setUniformValue(7, QVector3D(0.05f, 0.05f, 0.05f)); //Umgebungsfarbe/-helligkeit
+    _shader->setUniformValue(8, QVector3D(1.f, 1.f, 0.75f)); //Farbe des Highlights
+    _shader->setUniformValue(9, 3.f); //Exponent für Highlight-Berechnung
+    _shader->setUniformValue(10, 0.f); //Schalter-Variable um Highlights aus zu schalten
+    if(_name == "Skybox") {
+        _shader->setUniformValue(11, -1.f); //Hack um Normalen für Skybox-Beleuchtung umzudrehen
+    }
+    else {
+        _shader->setUniformValue(11, 1.f); //Normalfall - keine Änderung der Normalen
+    }
+    _shader->setUniformValue(12, float(SKYBOX_DIAMETER/2.f * SCALE_FACTOR)); //Übergabe des Skybox-Durchmessers als Referenzwert zur Berechnung der Beleuchtungsstärke
+    //Werte für Galaxiegröße 25 000 000
+    //_shader->setUniformValue(13, 0.25f);
+    //_shader->setUniformValue(14, 1.5f);
+    //Werte für Galaxiegröß  10 000 000
+    //_shader->setUniformValue(13, 0.35f);
+    //_shader->setUniformValue(14, 3.f);
+    _shader->setUniformValue(13, linMod);
+    _shader->setUniformValue(14, expMod);
 
     //dann Textur binden
     _mainTexture->bind(0);

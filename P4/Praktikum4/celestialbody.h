@@ -56,7 +56,9 @@ public:
                             unsigned short const &normOffset,
                             unsigned short const &texCoordOffset,
                             size_t const &stride,
-                            bool const &hasTextureCoords);
+                            bool const &hasTextureCoords,
+                            float const &linMod,
+                            float const &expMod);
 public slots:
    void update();
 };

@@ -56,10 +56,14 @@ private:
     QOpenGLShaderProgram* _heatShimmerShaderProgram;
     QOpenGLShaderProgram* _phongShaderProgram;
 
-    //The Debug Logger Ladies and Gents
-    QOpenGLDebugLogger* debugLogger;
+    //GUI Hilfsvariablen
     unsigned int _fpsCounter;
     float _actualFPS;
+    float _linMod;
+    float _expMod;
+
+    //The Debug Logger Ladies and Gents
+    QOpenGLDebugLogger* debugLogger;
 
     //Hilfsfunktionen
     void _initializeVBOs();
@@ -75,6 +79,8 @@ public:
 public slots:
     void onMessageLogged(QOpenGLDebugMessage message);
     void resetFPSCounter();
+    void recieveLinModUpdate(double value);
+    void recieveExpModUpdate(double value);
 signals:
     void sendSpeedFactor(int value);
     void sendFPSValue(int value);

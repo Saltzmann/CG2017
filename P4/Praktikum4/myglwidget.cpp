@@ -35,7 +35,8 @@ MyGLWidget::MyGLWidget(QWidget *parent) : QOpenGLWidget(parent),
     qDebug() << "Swap Interval:" << fmt.swapInterval();
 
     _fpsCounter = 0;
-
+    _linMod = 0.35f;
+    _expMod = 3.f;
 }
 
 void MyGLWidget::wheelEvent(QWheelEvent *event) {
@@ -453,7 +454,9 @@ void MyGLWidget::paintGL() {
                                 _normOffset,
                                 _texCoordOffset,
                                 _stride,
-                                _hasTextureCoords);
+                                _hasTextureCoords,
+                                _linMod,
+                                _expMod);
 
     _vbo.release();
     _ibo.release();
@@ -474,7 +477,14 @@ void MyGLWidget::onMessageLogged(QOpenGLDebugMessage message) {
 }
 
 void MyGLWidget::resetFPSCounter() {
-    //qDebug() << "FPS reset";
     _actualFPS = _fpsCounter;
     _fpsCounter = 0;
+}
+
+void MyGLWidget::recieveLinModUpdate(double value) {
+    _linMod = value;
+}
+
+void MyGLWidget::recieveExpModUpdate(double value) {
+    _expMod = value;
 }

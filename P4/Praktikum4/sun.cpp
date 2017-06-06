@@ -28,8 +28,11 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
                         unsigned short const &normOffset,
                         unsigned short const &texCoordOffset,
                         size_t const &stride,
-                        bool const &hasTextureCoords) {
-    //qDebug() << "RenderWithChildren: Sun";
+                        bool const &hasTextureCoords,
+                        float const &passthru1,
+                        float const &passthru2) {
+    //passthru1 und passthru2 werden nur weitergeleitet and CelBod Kindknoten mit phong shader
+
     //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
     _getOrbitalTransformationMatrix(ctm);
 
@@ -44,7 +47,9 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
                                   normOffset,
                                   texCoordOffset,
                                   stride,
-                                  hasTextureCoords);
+                                  hasTextureCoords,
+                                  passthru1,
+                                  passthru2);
         }
     }
 

@@ -105,10 +105,10 @@
             <enum>QLayout::SetDefaultConstraint</enum>
            </property>
            <property name="rightMargin">
-            <number>1100</number>
+            <number>400</number>
            </property>
            <item>
-            <widget class="QLabel" name="lblScaleZ">
+            <widget class="QLabel" name="lblSpeed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -118,7 +118,7 @@
              <property name="minimumSize">
               <size>
                <width>100</width>
-               <height>50</height>
+               <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -136,7 +136,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="sbxScaleZ">
+            <widget class="QSpinBox" name="sBXSpeed">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -182,11 +182,111 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="lbllinMod">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Linear Mod.</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="dSBlinMod">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>-10.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value">
+              <double>0.350000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblexpMod">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Exp. Mod.</string>
+             </property>
+             <property name="margin">
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="dSBexpMod">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="minimum">
+              <double>-10.000000000000000</double>
+             </property>
+             <property name="maximum">
+              <double>10.000000000000000</double>
+             </property>
+             <property name="singleStep">
+              <double>0.050000000000000</double>
+             </property>
+             <property name="value">
+              <double>3.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="lblFPSCounter">
              <property name="minimumSize">
               <size>
                <width>100</width>
-               <height>50</height>
+               <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
