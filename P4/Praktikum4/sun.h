@@ -7,11 +7,13 @@
 class Sun : public CelestialBody
 {
 private:
-    float _distortionCounterX;
+    unsigned int _distortionCounterX;
+    //float _distortionCounterX;
     float _distortionCounterY;
 
     QOpenGLTexture* _secondaryTexture;
     void _setSecondaryTexture(QString filename);
+    char _modHeavySideFunction(int xValue);
 public:
     Sun(QString planetName,
         double diameter, float axialTilt,

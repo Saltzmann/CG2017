@@ -16,7 +16,8 @@ Sun::Sun(QString planetName,
     _secondaryTexture = nullptr;
     _setSecondaryTexture(secondaryTextureFileName);
 
-    _distortionCounterX = 0.f;
+    _distortionCounterX = 0;
+    //_distortionCounterX = 0.f;
     _distortionCounterY = 0.f;
 }
 
@@ -95,7 +96,8 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     //an shader übergeben
     _shader->setUniformValue("diffuseMap", 0);
     _shader->setUniformValue("distortionMap", 1);
-    _shader->setUniformValue("timeX", float(0.001f * sin(_distortionCounterX)));
+    _shader->setUniformValue("timeX", float(0.0005f * _modHeavySideFunction(_distortionCounterX)));
+    //_shader->setUniformValue("timeX", float(0.001f * sin(_distortionCounterX)));
     _shader->setUniformValue("timeY", _distortionCounterY);
 
     //zeichnen lassen
@@ -115,7 +117,8 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     _mainTexture->release();
     _secondaryTexture->release();
 
-    _distortionCounterX += 2;
+    _distortionCounterX += 1;
+    //_distortionCounterX += 2; //bei sin() Version
     _distortionCounterY += 0.00075;
 
     //qDebug() << "diststeps" << _distortionStepsX;
@@ -129,4 +132,12 @@ void Sun::_setSecondaryTexture(QString filename) {
     _secondaryTexture->setWrapMode(QOpenGLTexture::Repeat);
     // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
     Q_ASSERT(_secondaryTexture->textureId() != 0);
+}
+
+char Sun::_modHeavySideFunction(int xValue)
+{
+    if(xValue % 2 == 0) {
+        return 1;
+    }
+    return -1;
 }
