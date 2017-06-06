@@ -1,11 +1,9 @@
 #version 330
 
-#extension GL_ARB_separate_shader_objects : enable
 #extension GL_ARB_explicit_uniform_location : enable
-// default330. frag : a simple fragment shader
+// phong330.frag : a simple phong shader
 //
-// notes:
-// GL_ARB_separate_shader_objects is not needed for version >= 410
+//extension brauche ich trotz OpenGL 4.4
 
 uniform sampler2D texture;
 layout(location = 1)in vec4 texC;
@@ -38,7 +36,7 @@ void main() {
     // und an der aktuellen Position von der Fläche abgeleitet wird
     vec3 textureColor = texture2D(texture, texC.xy).xyz;
     float colorMod = max(dot(s,n), 0.0);
-    kd;
+    kd; //Erwähnung, weil er sich sonst beschweren kann, dass es übergeben aber nicht genutzt wird
     vec3 outputColor = lightIntensity *
             ( ka + //umgebungsfarbe
               textureColor *  //"Farbe" des objekts
@@ -47,16 +45,4 @@ void main() {
               ks * pow(max(dot(r, v), 0.0), shininess) * killswitch); //hightlight beleuchtung abhängig vom reflexionswinkel
 
     gl_FragColor = vec4(outputColor, 1.0f);
-    //gl_FragColor = texture2D(texture, vec2(texC.x, texC.y));
 }
-
-
-//varying vec3 normal;
-//varying vec3 position;
-//uniform vec4 lightPosition;
-//uniform vec3 lightIntensity;
-//uniform vec3 kd;
-//uniform vec3 ka; // ambient
-//uniform vec3 ks; // specular
-//uniform float shininess; // controls specular effect
-

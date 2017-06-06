@@ -25,6 +25,7 @@ class MyGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
 private:
+    //Kameraführungs-Variablen
     float _speedFactor;
     QVector3D _viewOffset;
     QVector3D _viewDirection;
@@ -32,13 +33,14 @@ private:
     QVector3D _rightVector;
     QVector2D _oldMousePosition;
 
-    QTimer* _myTimer;
-    QTimer* _secondTimer;
+    //QTimer
+    QTimer* _myTimer; //SimTimer
+    QTimer* _secondTimer; //FPSTimer
 
-    //Planet Stuff
+    //Root Element zum Himmelskörper rendern
     CelestialBody* _galaxy;
 
-    //Model Stuff
+    //Model und Buffer-Object bezogene Daten
     QOpenGLBuffer _vbo;
     QOpenGLBuffer _ibo;
     bool _hasTextureCoords;
@@ -62,20 +64,23 @@ private:
     float _linMod;
     float _expMod;
 
-    //The Debug Logger Ladies and Gents
+    //Debug Logger für erweiterte Fehlermeldungen
     QOpenGLDebugLogger* debugLogger;
 
-    //Hilfsfunktionen
+    //(ausgelagerte) Hilfsfunktionen - hauptsächlich zur Übersichtlichkeit
     void _initializeVBOs();
     void _initializeCelestialBodies();
     void _fillBuffers();
 public:
+    //Konstruktor
     MyGLWidget(QWidget *parent);
+    //QT OpenGL Overrides
     void initializeGL();
     void paintGL();
+    //Mouse und Keyboard-Event Overrides
     void keyPressEvent(QKeyEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);    
+    void wheelEvent(QWheelEvent *event);
 public slots:
     void onMessageLogged(QOpenGLDebugMessage message);
     void resetFPSCounter();

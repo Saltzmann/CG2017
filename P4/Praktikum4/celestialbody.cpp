@@ -8,7 +8,7 @@ CelestialBody::CelestialBody(QString planetName,
                              double orbitalRadius,
                              QString mainTextureFileName,
                              QOpenGLShaderProgram *myShader) {
-    //Simple start values
+    //Initiale Parameter übertragen
     this->_name = planetName;
     this->_diameter = diameter;
     this->_axialTilt = axialTilt;
@@ -17,11 +17,11 @@ CelestialBody::CelestialBody(QString planetName,
     this->_orbitalRadius = orbitalRadius;
     this->_shader = myShader;
 
-    //calculated values
+    //Berechnete Werte:
     //Periods sind immer in Tagen angegeben = Zeit für 360 Grad Drehung
     //rotation pro Tag = 360 Grad / Periode
     //Mal 365,25 = Rotation in Grad pro Jahr
-    // das mal Beschleunigungs/Simulationsfaktor = ergebnis
+    //dies mal Beschleunigungs/Simulationsfaktor = Rotations/Orbit-Gradzahl pro Tick/Update
 
     this->_rotationalAnglePerTick = ((360.0 / _rotationPeriod) * 365.25) * SIMYEARS_PER_TICK;
 
@@ -32,25 +32,18 @@ CelestialBody::CelestialBody(QString planetName,
         this->_orbitalAnglePerTick = 0.0;
     }
 
-    //qDebug() << "_rotationalAnglePerTick : " << _rotationalAnglePerTick;
-    //qDebug() << "_orbitalAnglePerTick : " << _orbitalAnglePerTick;
-
-    //others
+    //Textur setzen
     _mainTexture = nullptr;
-
     _setMainTexture(mainTextureFileName);
 
+    //Start Orbit und Rotation festlegen
     _currentOrbitalAngle = 0.f;
     _currentRotationalAngle = 0.f;
 }
 
-//PUBLIC METHODS
 void CelestialBody::addOrbitingCelestialBody(CelestialBody *child) {
+    //Kindknoten hinzufügen
     Orbiting.push_back(child);
-}
-
-bool CelestialBody::hasCelestialBodiesOrbiting() {
-    return (!Orbiting.empty());
 }
 
 void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
@@ -64,13 +57,13 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
                                        bool const &hasTextureCoords,
                                        float const &linMod,
                                        float const &expMod) {
-    //qDebug() << "RenderWithChildren: CelBod";
-    //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
+    //ctm ist call bei value daher kann dies hier verändert werden
+    //ctm beinhaltet nach dem Aufruf die Positionstransformation, die auch die Kinder betrifft
     _getOrbitalTransformationMatrix(ctm);
 
-    //gucken ob kinder -> ausführen mit top of Stack
+    //Prüfen ob der Himmelskörper vom ihm abhängige "Kinder" hat
     if(!Orbiting.empty()) {
-        for(CelestialBody* x : Orbiting) { //gucken ob er foreach kann!!
+        for(CelestialBody* x : Orbiting) { //juhu, c++ kann foreach
             x->RenderWithChildren(ctm,
                                   viewMatrix,
                                   projectionMatrix,
@@ -85,22 +78,21 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
         }
     }
 
+    //Nach diesem Aufruf beinhaltet ctm auch die Eigenrotation
     _getRotationTransformationMatrix(ctm);
 
-    //Matrix Locations
+    //Matrix Locations für den Shader
     int unifProjMatrix = 0;
     int unifViewMatrix = 1;
     int unifModelMatrix = 2;
     int unifNormMatrix = 3;
 
-    //Matrix ops fertig nun shader
+    //Matrix Berechnungen fertig nun shader konfigurieren
     _shader->bind();
 
-    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
+    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte, Normalen und Textur
     int attrVertices = 0;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Normalen
     int attrNorms = 1;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Textur
     int attrTexCoords = 2;
 
     // Aktiviere die Verwendung der Attribute-Arrays
@@ -117,6 +109,7 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
         _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride); //TexturCoordinaten
     }
 
+    //Uniforms an den Shader übergeben
     _shader->setUniformValue(unifProjMatrix, projectionMatrix); //projektionsMatrix (const)
     _shader->setUniformValue(unifViewMatrix, viewMatrix); //viewMatrix ("const")
     _shader->setUniformValue(unifModelMatrix, ctm); //modelMatrix (immer abhängig vom gerade zu rendernden Himmelskörper)
@@ -136,29 +129,35 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
         _shader->setUniformValue(11, 1.f); //Normalfall - keine Änderung der Normalen
     }
     _shader->setUniformValue(12, float(SKYBOX_DIAMETER/2.f * SCALE_FACTOR)); //Übergabe des Skybox-Durchmessers als Referenzwert zur Berechnung der Beleuchtungsstärke
-    //Werte für Galaxiegröße 25 000 000
-    //_shader->setUniformValue(13, 0.25f);
-    //_shader->setUniformValue(14, 1.5f);
-    //Werte für Galaxiegröß  10 000 000
-    //_shader->setUniformValue(13, 0.35f);
-    //_shader->setUniformValue(14, 3.f);
-    _shader->setUniformValue(13, linMod);
-    _shader->setUniformValue(14, expMod);
 
-    //dann Textur binden
+    /* ----------------------------------------------------------
+    Alte hardgecodete Werte für die Beleuchtungsanpassung
+    - hier als Referenz zum nachgucken
+
+    Werte für Galaxiegröße 25 000 000
+    _shader->setUniformValue(13, 0.25f);
+    _shader->setUniformValue(14, 1.5f);
+
+    Werte für Galaxiegröß  10 000 000
+    _shader->setUniformValue(13, 0.35f); //oder 0.40f
+    _shader->setUniformValue(14, 3.0f); //oder 2.10f
+
+    //*/
+    _shader->setUniformValue(13, linMod); //lineare Beleuchtungsanpassung (abhängig von der Distanz zur Lichtquelle)
+    _shader->setUniformValue(14, expMod); //exponentielle Beleuchtungsanpassung (abhängig von der Distanz zur Lichtquelle)
+
+    //Haupt-Textur binden und an shader übergeben
     _mainTexture->bind(0);
-
-    //an shader übergeben
     _shader->setUniformValue("diffuseMap", 0);
 
-    if(_name == "Skybox") { //frontface wechseln
+    if(_name == "Skybox") { //frontface wechseln, wenn Skybox gerendert wird
         glFrontFace(GL_CW);
     }
 
-    //zeichnen lassen
+    //Himmelskörper zeichnen lassen
     glDrawElements(GL_TRIANGLES, iboLength, GL_UNSIGNED_INT, 0);
 
-    if(_name == "Skybox") { //frontface zurück wechseln
+    if(_name == "Skybox") { //frontface zurück wechseln, wenn rendern der Skybox fertig
         glFrontFace(GL_CCW);
     }
 
@@ -176,18 +175,16 @@ void CelestialBody::RenderWithChildren(QMatrix4x4 ctm,
     _mainTexture->release();
 }
 
-//PRIVATE METHODS
 void CelestialBody::_setMainTexture(QString filename) {
+    //(ausgelagerte) Hilfsfunktion zum Setzen der Haupt-Textur
     _mainTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
     _mainTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     _mainTexture->setMagnificationFilter(QOpenGLTexture::Linear);
-    // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
-    Q_ASSERT(_mainTexture->textureId() != 0);
+    Q_ASSERT(_mainTexture->textureId() != 0); //Würde Fehler bedeuten
 }
 
 void CelestialBody::update() {
-    //qDebug() << "update called";
-    //currentRotationalAngle
+    //currentRotationalAngle anpassen
     _currentRotationalAngle += _rotationalAnglePerTick;
     if(_currentRotationalAngle >= 360) {
         _currentRotationalAngle -= 360.f;
@@ -195,7 +192,7 @@ void CelestialBody::update() {
     else if(_currentRotationalAngle <= 0) {
         _currentRotationalAngle += 360;
     }
-    //currentOrbitalAngle
+    //currentOrbitalAngle anpassen
     _currentOrbitalAngle += _orbitalAnglePerTick;
     if(_currentOrbitalAngle >= 360) {
         _currentOrbitalAngle -= 360.f;
@@ -203,38 +200,32 @@ void CelestialBody::update() {
     else if(_currentOrbitalAngle <= 0) {
         _currentOrbitalAngle += 360;
     }
-    //qDebug() << "currentRotAngle : " << _currentRotationalAngle;
-    //qDebug() << "currentOrbAngle : " << _currentOrbitalAngle;
 }
 
 void CelestialBody::_getOrbitalTransformationMatrix(QMatrix4x4 &matrix) {
-
-    //andersherum...sprich lies von unten nach oben
-
     //betrifft ORBIT
+
     //um Sonne/Planet rotieren
     matrix.rotate(_currentOrbitalAngle, 0.f, 1.f, 0.f);
-
     //in den Orbit translatieren
     matrix.translate(_orbitalRadius * SCALE_FACTOR, 0.f, 0.f);
 }
 
 void CelestialBody::_getRotationTransformationMatrix(QMatrix4x4 &matrix) {
-
     //betrifft EIGENROTATION
+
     //orbitale rotation dreht auch Planet, da dies nicht gewollt ist vorher gegenrotieren
     matrix.rotate(-_currentOrbitalAngle, 0.f, 1.f, 0.f);
-
     //wieder um achse neigen
     matrix.rotate(_axialTilt, 0.f, 0.f, 1.f);
-
     //um rotationsachse rotieren
     matrix.rotate(-_currentRotationalAngle, 0.f, 1.f, 0.f);
-
-    //textur ist bereits geneigt also zurückneigen
+    //textur ist bereits geneigt also zurückneigen (ist zumindest bei der Erde so, beim Jupiter nicht...daher eiert der...)
     matrix.rotate(-_axialTilt, 0.f, 0.f, 1.f);
+    //Radius des Himmelskörpers skalieren
+    matrix.scale((_diameter / 2.0) * SCALE_FACTOR);
 
-    matrix.scale((_diameter / 2.0) * SCALE_FACTOR); //radius skalieren
+    //Debug-Ausgabe, falls man die tatsächlichen Größen in Weltkoordinaten wissen will
     //qDebug() << "Skalierter Radius von" << _name << "beträgt" << ((_diameter / 2.0) * SCALE_FACTOR);
     //qDebug() << "Berechneter Abstand von" << _name << "zur Sonne =" << (_orbitalRadius * SCALE_FACTOR);
 }

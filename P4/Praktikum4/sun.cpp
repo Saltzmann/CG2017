@@ -13,11 +13,14 @@ Sun::Sun(QString planetName,
                                                            orbitalRadius,
                                                            mainTextureFileName,
                                                            myShader) {
+    //Nach ausgeführtem Konstruktor von CelestialBody:
+    //Zweit-Textur einbinden
     _secondaryTexture = nullptr;
     _setSecondaryTexture(secondaryTextureFileName);
 
+    //Werte für Hitzeflimmern-Effekt initialiseren
     _distortionCounterX = 0;
-    //_distortionCounterX = 0.f;
+    //_distortionCounterX = 0.f; //für Sinus-Version
     _distortionCounterY = 0.f;
 }
 
@@ -30,16 +33,15 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
                         unsigned short const &texCoordOffset,
                         size_t const &stride,
                         bool const &hasTextureCoords,
-                        float const &passthru1,
+                        float const &passthru1, //passthru1 und passthru2 werden nur weitergeleitet an CelBod Kindknoten mit phong shader
                         float const &passthru2) {
-    //passthru1 und passthru2 werden nur weitergeleitet and CelBod Kindknoten mit phong shader
-
-    //Ctm ist call bei value daher sollte dies gehen, dass sie hier verändert wird
+    //ctm ist call bei value daher kann dies hier verändert werden
+    //ctm beinhaltet nach dem Aufruf die Positionstransformation, die auch die Kinder betrifft
     _getOrbitalTransformationMatrix(ctm);
 
-    //gucken ob kinder -> ausführen mit top of Stack
+    //Prüfen ob der Himmelskörper vom ihm abhängige "Kinder" hat
     if(!Orbiting.empty()) {
-        for(CelestialBody* x : Orbiting) { //gucken ob er foreach kann!!
+        for(CelestialBody* x : Orbiting) { //juhu, c++ kann foreach
             x->RenderWithChildren(ctm,
                                   viewMatrix,
                                   projectionMatrix,
@@ -54,21 +56,20 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
         }
     }
 
+    //Nach diesem Aufruf beinhaltet ctm auch die Eigenrotation
     _getRotationTransformationMatrix(ctm);
 
-    //Matrix Locations
+    //Matrix Locations für den Shader
     int unifProjMatrix = 0;
     int unifViewMatrix = 1;
     int unifModelMatrix = 2;
 
-    //Matrix ops fertig nun shader
+    //Matrix Berechnungen fertig nun shader konfigurieren
     _shader->bind();
 
-    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte
+    // Lokalisiere bzw. definiere die Schnittstelle für die Eckpunkte, Normalen und Textur
     int attrVertices = 0;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Normalen
     int attrNorms = 1;
-    // Lokalisiere bzw. definiere die Schnittstelle für die Textur
     int attrTexCoords = 2;
 
     // Aktiviere die Verwendung der Attribute-Arrays
@@ -79,28 +80,29 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     }
 
     // Fülle die Attribute-Buffer mit den korrekten Daten
-    _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride);
-    _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride);
+    _shader->setAttributeBuffer(attrVertices, GL_FLOAT, vertOffset, 4, stride); //VertexPositionen
+    _shader->setAttributeBuffer(attrNorms, GL_FLOAT, normOffset, 4, stride); //VertexNormalen
     if(hasTextureCoords) {
-        _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride);
+        _shader->setAttributeBuffer(attrTexCoords, GL_FLOAT, texCoordOffset, 4, stride); //TexturCoordinaten
     }
 
-    _shader->setUniformValue(unifProjMatrix, projectionMatrix);
-    _shader->setUniformValue(unifViewMatrix, viewMatrix);
-    _shader->setUniformValue(unifModelMatrix, ctm);
+    //Uniforms an den Shader übergeben
+    _shader->setUniformValue(unifProjMatrix, projectionMatrix); //projektionsMatrix (const)
+    _shader->setUniformValue(unifViewMatrix, viewMatrix); //viewMatrix ("const")
+    _shader->setUniformValue(unifModelMatrix, ctm); //modelMatrix (immer abhängig vom gerade zu rendernden Himmelskörper)
 
-    //dann Textur binden
+    //Haupt- und Zweit-Textur binden und an den shader übergeben
     _mainTexture->bind(0);
     _secondaryTexture->bind(1);
-
-    //an shader übergeben
     _shader->setUniformValue("diffuseMap", 0);
     _shader->setUniformValue("distortionMap", 1);
-    _shader->setUniformValue("timeX", float(0.0005f * _modHeavySideFunction(_distortionCounterX)));
-    //_shader->setUniformValue("timeX", float(0.001f * sin(_distortionCounterX)));
+
+    //Für Hitzeflimmern-Effekt benötigte Uniforms an shader übergeben
+    _shader->setUniformValue("timeX", float(0.001f * _modHeavySideFunction(_distortionCounterX)));
+    //_shader->setUniformValue("timeX", float(0.001f * sin(_distortionCounterX))); //sinus-Version
     _shader->setUniformValue("timeY", _distortionCounterY);
 
-    //zeichnen lassen
+    //Sonne zeichnen lassen
     glDrawElements(GL_TRIANGLES, iboLength, GL_UNSIGNED_INT, 0);
 
     // Deaktiviere die Verwendung der Attribute-Arrays
@@ -113,29 +115,27 @@ void Sun::RenderWithChildren(QMatrix4x4 ctm,
     //Shader lösen
     _shader->release();
 
-    // Löse die Textur aus dem OpenGL-Kontext
+    //Haupt- und Zweit-Textur aus dem OpenGL-Kontext lösen
     _mainTexture->release();
     _secondaryTexture->release();
 
+    //Attribute für den nächsten Durchlauf für den Hitzeflimmer-Effekt anpassen
     _distortionCounterX += 1;
-    //_distortionCounterX += 2; //bei sin() Version
-    _distortionCounterY += 0.00075;
-
-    //qDebug() << "diststeps" << _distortionStepsX;
-    //qDebug() << "distcountx" << _distortionCounterX;
+    //_distortionCounterX += 2; //für sinus-Version
+    _distortionCounterY += 0.0005;
 }
 
 void Sun::_setSecondaryTexture(QString filename) {
+    //(ausgelagerte) Hilfsfunktion zum Setzen der Zweit-Textur
     _secondaryTexture = new QOpenGLTexture(QImage(":/" + filename).mirrored());
     _secondaryTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
     _secondaryTexture->setMagnificationFilter(QOpenGLTexture::Linear);
     _secondaryTexture->setWrapMode(QOpenGLTexture::Repeat);
-    // Anm.: Wenn qTex->textureId() == 0 ist, dann ist etwas schief gegangen
-    Q_ASSERT(_secondaryTexture->textureId() != 0);
+    Q_ASSERT(_secondaryTexture->textureId() != 0); //Würde Fehler bedeuten
 }
 
-char Sun::_modHeavySideFunction(int xValue)
-{
+char Sun::_modHeavySideFunction(int xValue) {
+    //Modifizierte Heavy-Side Funktion die zwischen 1 und -1 osziliert und nicht 1 und 0
     if(xValue % 2 == 0) {
         return 1;
     }

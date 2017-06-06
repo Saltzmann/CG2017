@@ -1,6 +1,7 @@
 #version 130
 
 // default130.vert : a simple vertex shader
+// (nicht genutzt)
 
 uniform mat4 matrix;
 attribute vec4 vert;

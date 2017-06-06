@@ -4,8 +4,8 @@
 #define TICKS_PER_SECOND 60
 #define SIMYEARS_PER_TICK 0.001/(double)TICKS_PER_SECOND
 #define SCALE_FACTOR 1/4879.4 //vielfaches von Merkur
-//#define SKYBOX_DIAMETER 25000000
-#define SKYBOX_DIAMETER 10000000
+//#define SKYBOX_DIAMETER 25000000 //große Skybox
+#define SKYBOX_DIAMETER 10000000 //kleinere Skybox
 
 #include <QOpenGLTexture>
 #include <QVector>
@@ -17,37 +17,37 @@ class CelestialBody : public QObject
 {
     Q_OBJECT
 protected:
-    //Atrributes
-    //initial
+    //initiale (dem Konstruktor übergebene) Attribute
     QString _name;
     double _diameter;
     float _axialTilt;
     float _rotationPeriod;
     double _orbitalPeriod;
     double _orbitalRadius;
-    //general
-    QVector<CelestialBody*> Orbiting;
     QOpenGLTexture* _mainTexture;
     QOpenGLShaderProgram* _shader;
-    //fixed calculated values (for performance)
+    //Vector an Kind-Himmelskörpern
+    QVector<CelestialBody*> Orbiting;
+    //fest berechnete Attribute (für die Performanz)
     float _rotationalAnglePerTick;
     float _orbitalAnglePerTick;
-    //current location & rotation
+    //aktuelle Transformationswerte
     float _currentOrbitalAngle;
     float _currentRotationalAngle;
-
-    //methods
+    //private (ausgelagerte) Hilfsmethoden
     void _setMainTexture(QString filename);
     void _getOrbitalTransformationMatrix(QMatrix4x4 &matrix);
     void _getRotationTransformationMatrix(QMatrix4x4 &matrix);
 public:
+    //Konstruktor
     CelestialBody(QString planetName,
                   double diameter, float axialTilt,
                   float rotationPeriod, float orbitalPeriod,
                   double orbitalRadius, QString mainTextureFileName,
                   QOpenGLShaderProgram* myShader);
+    //Funktion zum Aufbauen des Renderbaums
     void addOrbitingCelestialBody(CelestialBody* child);
-    bool hasCelestialBodiesOrbiting();
+    //Basisklassen-Methode zum Rendern des Himmelskörpers
     virtual void RenderWithChildren(QMatrix4x4 ctm,
                             QMatrix4x4 const &viewMatrix,
                             QMatrix4x4 const &projectionMatrix,
@@ -60,6 +60,7 @@ public:
                             float const &linMod,
                             float const &expMod);
 public slots:
+   //Update Slot um synchronisierte Timer-Updates für Rotation & Orbit zu bekommen
    void update();
 };
 

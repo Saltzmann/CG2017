@@ -6,7 +6,7 @@
 // default330.vert : a simple vertex shader
 //
 // notes:
-// GL_ARB_explicit_uniform_location is not needed for version >= 430
+// GL_ARB_explicit_uniform_location is not needed for version >= 430 -> brauchte ich trotz OpenGL 4.4
 // GL_ARB_separate_shader_objects is not needed for version >= 410
 
 layout(location = 0)uniform mat4 projectionMatrix;
@@ -18,7 +18,6 @@ layout(location = 2)in vec4 texCoord;
 layout(location = 1)out vec4 texC;
 
 void main() {
-    //col = vec4(1.0f, 0.0f, 0.0f, 1.0f);
     mat4 matrix = projectionMatrix * viewMatrix * modelMatrix;
     gl_Position = matrix * vert;
     texC = texCoord;
